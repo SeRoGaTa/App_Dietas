@@ -1,0 +1,7 @@
+PLANIFICADOR DE DIETA (app instalable)
+
+Sube TODO el contenido de esta carpeta a un repositorio de GitHub y activa GitHub Pages:
+  index.html, sw.js, manifest.webmanifest, xlsx.full.min.js, los iconos .png y la carpeta fonts.
+
+Tus datos se guardan en cada teléfono. No hay servidor ni cuentas en línea.
+Desarrollado por Sergio Gaytán · Para uso de la Familia Gaytán Delgado.

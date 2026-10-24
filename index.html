@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dieta">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-800-normal.woff2) format('woff2')}
+[hidden]{display:none!important}
+</style>
+<title>Planificador de Dieta</title>
+<meta name="theme-color" content="#2a56c6">
+<script src="xlsx.full.min.js"></script>
+<style>
+/* Layout: una columna de 560px máx. El menú muestra una sola lista de 4 comidas por día; lo que casi no cambia (personas, límite) vive en un ajuste aparte.
+   Color: blancos y grises fríos con un solo azul en tres tonos (sólido principal, tinte suave secundario, texto azul terciario). Cada tipo de comida tiene su punto de color.
+   Estado: el semáforo de calorías siempre lleva símbolo además de color (✓ ! ▲). */
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --surface-2:#eceff4; --ink:#171c28; --muted:#5f6b7e; --line:#e3e7ee;
+  --accent:#2a56c6; --accent-ink:#ffffff; --accent-soft:#e6edfd; --on-soft:#234aab;
+  --ok:#1d7a55; --ok-bg:#dff3ea; --warn:#8a5a00; --warn-bg:#fcf0d6; --over:#b4412f; --over-bg:#fbe4df;
+  --scrim:rgba(15,20,32,.5);
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
+  --font-body:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1117; --surface:#161b25; --surface-2:#1f2633; --ink:#e8ecf4; --muted:#9aa6ba; --line:#262e3d;
+    --accent:#7ea3ff; --accent-ink:#0b1530; --accent-soft:#1b2a4d; --on-soft:#a9c1ff;
+    --ok:#7fd8ae; --ok-bg:#153126; --warn:#f0c56a; --warn-bg:#33280f; --over:#f5a091; --over-bg:#3c1d18;
+    --scrim:rgba(0,0,0,.62); --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1117; --surface:#161b25; --surface-2:#1f2633; --ink:#e8ecf4; --muted:#9aa6ba; --line:#262e3d;
+  --accent:#7ea3ff; --accent-ink:#0b1530; --accent-soft:#1b2a4d; --on-soft:#a9c1ff;
+  --ok:#7fd8ae; --ok-bg:#153126; --warn:#f0c56a; --warn-bg:#33280f; --over:#f5a091; --over-bg:#3c1d18;
+  --scrim:rgba(0,0,0,.62); --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+button[disabled]{cursor:default}
+h1,h2,h3,h4,p{margin:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+.ic{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.on{fill:currentColor}
+
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(96px + env(safe-area-inset-bottom,0px))}
+.app-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.app-head h1{font-weight:800;font-size:24px;line-height:1.15;letter-spacing:-.03em;text-wrap:balance}
+.app-head .hello{font-size:13px;font-weight:600;color:var(--accent);margin:0 0 2px}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.sticky{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px}
+
+/* controles */
+.row-ctl{display:flex;gap:10px;align-items:stretch}
+.row-ctl .seg{flex:1;min-width:0}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface-2);border-radius:14px;padding:4px;gap:4px}
+.seg button{min-height:42px;border-radius:11px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent);box-shadow:0 1px 3px rgba(16,24,40,.14)}
+.seg.sm button{min-height:38px;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 20px;border-radius:14px;font-weight:700;border:0;background:var(--accent-soft);color:var(--on-soft)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 6px 16px rgba(42,86,198,.25)}
+.btn.danger{background:var(--over-bg);color:var(--over)}
+.btn[disabled]{opacity:.5;box-shadow:none}
+.btn.block{width:100%}
+.btn.sm{min-height:44px;padding:0 16px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row .btn{flex:1 1 140px}
+.icon-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:26px;line-height:1;color:var(--muted)}
+.icon-sq{width:46px;height:46px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);color:var(--muted);flex:none}
+.icon-sq.flat{border:0;background:transparent}
+.link{min-height:44px;padding:0 12px;font-weight:700;color:var(--accent);border-radius:10px}
+.link.danger{color:var(--over)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.card.list{padding:0;overflow:hidden}
+.settings{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label,.field .lbl{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{width:100%;min-height:50px;padding:10px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:16px}
+.field input:focus,.field select:focus,.field textarea:focus,.search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.field textarea{resize:vertical;min-height:96px}
+.stepper{display:grid;grid-template-columns:50px 1fr 50px;align-items:center;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.stepper button{height:48px;font-size:22px;font-weight:600;color:var(--accent)}
+.stepper output{text-align:center;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}
+
+/* menú: tira de días */
+.strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.day{display:flex;flex-direction:column;align-items:center;gap:1px;min-height:78px;padding:8px 0 8px;border-radius:14px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow)}
+.day .dl{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.day .dn{font-size:19px;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.day .dk{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.day .dot{width:14px;height:14px;border-radius:50%;background:var(--line);margin-top:auto;display:grid;place-items:center;font-size:9px;font-weight:800;line-height:1;color:var(--surface)}
+.day.s-ok .dot{background:var(--ok)} .day.s-ok .dot::after{content:"✓"}
+.day.s-warn .dot{background:var(--warn)} .day.s-warn .dot::after{content:"!"}
+.day.s-over .dot{background:var(--over)} .day.s-over .dot::after{content:"▲";font-size:7px}
+.day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 6px 16px rgba(42,86,198,.28)}
+.day[aria-pressed="true"] .dl,.day[aria-pressed="true"] .dk{color:var(--accent-ink);opacity:.85}
+.day[aria-pressed="true"] .dot{background:var(--accent-ink);color:var(--accent)}
+
+.day-block{padding:4px 2px}
+.day-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-right:-6px}
+.total .big{font-size:48px;font-weight:800;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.total .of{color:var(--muted);font-size:14px;margin-left:6px}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin:14px 0 10px}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--line);width:0}
+.total.s-ok .bar i{background:var(--ok)} .total.s-warn .bar i{background:var(--warn)} .total.s-over .bar i{background:var(--over)}
+.status{font-size:14px;font-weight:600;color:var(--muted)}
+.total.s-ok .status{color:var(--ok)} .total.s-ok .status::before{content:"✓ "}
+.total.s-warn .status{color:var(--warn)} .total.s-warn .status::before{content:"! "}
+.total.s-over .status{color:var(--over)} .total.s-over .status::before{content:"▲ "}
+
+.kcal{font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;color:var(--on-soft);background:var(--accent-soft);padding:3px 11px;border-radius:99px;white-space:nowrap}
+.mrow{display:flex;align-items:center;gap:8px;padding:4px 6px 4px 8px;border-top:1px solid var(--line)}
+.mrow:first-child{border-top:0}
+.mrow-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:68px;text-align:left}
+.mico{width:42px;height:42px;border-radius:13px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.mtxt{min-width:0;display:flex;flex-direction:column}
+.mname{font-weight:700;font-size:16px;line-height:1.3;letter-spacing:-.01em;overflow-wrap:anywhere}
+.mname.add{color:var(--accent)}
+.plus{margin-left:auto;margin-right:8px;width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:22px;line-height:1;flex:none}
+
+/* súper */
+.group-h{display:flex;justify-content:space-between;align-items:baseline;padding:18px 2px 8px}
+.group-h h3{font-weight:800;font-size:17px;letter-spacing:-.02em}
+.group-h span{font-size:12px;color:var(--muted);font-weight:600}
+.items{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.item{position:relative;display:flex;align-items:center;gap:14px;min-height:64px;padding:8px 16px;border-top:1px solid var(--line);cursor:pointer}
+.item:first-child{border-top:0}
+.item input{position:absolute;opacity:0;width:1px;height:1px}
+.item .box{flex:none;width:28px;height:28px;border-radius:9px;border:2px solid #b3bccb;display:inline-flex;align-items:center;justify-content:center}
+.item input:checked + .box{background:var(--accent);border-color:var(--accent)}
+.item input:checked + .box::after{content:"";width:7px;height:13px;border:solid var(--accent-ink);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.item input:focus-visible + .box{outline:3px solid var(--accent);outline-offset:2px}
+.item-name{flex:1;min-width:0;font-weight:600;font-size:17px;overflow-wrap:anywhere}
+.item-qty{flex:none;font-weight:700;font-variant-numeric:tabular-nums;background:var(--accent-soft);color:var(--on-soft);padding:4px 12px;border-radius:99px;font-size:15px}
+.item.done .item-name{text-decoration:line-through;color:var(--muted);font-weight:500}
+.item.done .item-qty{background:var(--surface-2);color:var(--muted)}
+.progress{font-size:14px;color:var(--muted);font-weight:500}
+.progress b{color:var(--ink)}
+.sticky .bar{height:8px;margin:8px 0 0}
+.sticky .bar i{background:var(--accent)}
+.done-group{margin-top:18px}
+.done-group > summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 2px;cursor:pointer;font-weight:800;font-size:17px;letter-spacing:-.02em}
+.done-group > summary::-webkit-details-marker{display:none}
+.done-group .chev,.lib-group .chev{width:18px;height:18px;flex:none;margin-left:auto;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.done-group[open] .chev,.lib-group[open] .chev{transform:rotate(180deg)}
+
+/* platillos */
+.lib-bar{display:flex;gap:10px;align-items:center}
+.lib-bar .search{flex:1;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:0 15px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:14px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip[disabled]{opacity:.4}
+.search{width:100%;min-height:50px;padding:10px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:16px}
+.lib-group{margin-top:4px}
+.lib-group > summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 2px;cursor:pointer}
+.lib-group > summary::-webkit-details-marker{display:none}
+.lib-group .dotc{width:11px;height:11px;border-radius:50%;background:var(--c);flex:none}
+.lib-group .gt{font-weight:800;font-size:18px;letter-spacing:-.02em}
+.lib-group .gc{font-size:13px;color:var(--muted);font-weight:600;margin-left:auto}
+.lib-group .gc + .chev{margin-left:0}
+.lib-group .glist{display:flex;flex-direction:column;gap:10px;padding:2px 0 12px}
+.food{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-height:66px;box-shadow:var(--shadow)}
+.food-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.food h3{font-size:15.5px;font-weight:700;line-height:1.3;letter-spacing:-.01em;overflow-wrap:anywhere}
+.food p{color:var(--muted);font-size:13px;margin-top:3px;overflow-wrap:anywhere}
+.fav{width:14px;height:14px;vertical-align:-2px;color:var(--accent)}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+.credit{text-align:center;color:var(--muted);font-size:12px;margin-top:18px;line-height:1.6}
+.fab{position:fixed;z-index:30;right:max(16px,calc((100vw - 560px) / 2 + 16px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 10px 24px rgba(42,86,198,.35)}
+.fab .ic{width:26px;height:26px;stroke-width:2.2}
+
+/* hojas */
+.overlay{position:fixed;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--surface);border-radius:26px 26px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);animation:up .22s ease-out}
+@supports (height:1dvh){.sheet{max-height:92dvh}}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 8px 4px max(18px,env(safe-area-inset-left,0px))}
+.sheet-head h2{font-weight:800;font-size:21px;line-height:1.2;letter-spacing:-.025em;overflow-wrap:anywhere}
+.sheet-body{overflow-y:auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;overscroll-behavior:contain}
+.sheet.full{max-width:none;height:100%;max-height:none;border-radius:0}
+.acts{display:flex;flex-direction:column}
+.act-row{display:flex;align-items:center;gap:14px;width:100%;min-height:58px;padding:0 4px;font-weight:600;font-size:16px;text-align:left;border-top:1px solid var(--line)}
+.act-row:first-child{border-top:0}
+.act-row .ic{color:var(--muted)}
+.act-row.danger,.act-row.danger .ic{color:var(--over)}
+.pick-item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;min-height:68px;padding:10px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.pick-item h4{font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.pick-item p{margin:2px 0 0;font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.pick-item > div:first-child{min-width:0}
+.pk-r{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}
+.proj{font-size:12px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.proj.warn{color:var(--warn)} .proj.over{color:var(--over)}
+.pk-sec{margin:6px 2px 0}
+.pk-sum{font-size:14px;color:var(--muted)}
+.pk-sum b{color:var(--ink)}
+.ing-list{list-style:none;margin:0;padding:0}
+.ing-list li{display:flex;justify-content:space-between;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.ing-list li span:last-child{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.prep{background:var(--surface-2);border-radius:16px;padding:14px 16px;white-space:pre-wrap;line-height:1.6}
+.ing-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
+.ing-row .name{grid-column:1/-1}
+.ing-row input,.ing-row select{width:100%;min-height:46px;padding:8px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-size:16px}
+.msg{font-size:14px;font-weight:600;color:var(--over)}
+.cg-h{display:flex;align-items:center;justify-content:space-between}
+.cg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cg .chip{padding:0;min-height:46px;font-size:16px;font-weight:700}
+
+/* menú del refri */
+.fr-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.fr-table{border-collapse:collapse;table-layout:fixed;min-width:720px;width:100%;font-size:12px}
+.fr-table th:first-child,.fr-table td.m{width:84px}
+.fr-table th,.fr-table td{border:1px solid var(--line);padding:6px;vertical-align:top;text-align:left}
+.fr-table th{background:var(--surface-2);font-weight:700}
+.fr-table td small{display:block;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.fr-table td.m{font-weight:700;background:var(--surface-2);white-space:nowrap}
+.fr-week{font-weight:800;font-size:19px;letter-spacing:-.02em;margin:6px 0}
+.fr-note{font-size:13px;color:var(--muted)}
+
+/* perfil */
+.avatar{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;overflow:hidden;flex:none}
+.avatar.sm{width:46px;height:46px;font-size:18px;box-shadow:0 0 0 3px var(--surface),0 0 0 4.5px var(--line)}
+.avatar.md{width:42px;height:42px;font-size:17px}
+.avatar.lg{width:84px;height:84px;font-size:34px}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar svg{width:55%;height:55%;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.avatar-row{display:flex;align-items:center;gap:16px}
+.avatar-row .col{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.user-row{display:flex;align-items:center;gap:12px;width:100%;min-height:66px;padding:10px 14px;border-radius:18px;border:1px solid var(--line);background:var(--surface);text-align:left;box-shadow:var(--shadow)}
+.user-row[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.user-row .u-name{font-weight:700;overflow-wrap:anywhere}
+.user-row small{display:block;color:var(--muted);font-size:13px}
+.user-row .badge{margin:0 0 0 auto;background:var(--accent);color:var(--accent-ink)}
+.user-row > div{min-width:0}
+.check{display:flex;align-items:center;gap:12px;min-height:48px;font-weight:600}
+.check input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.note{font-size:13px;color:var(--muted);line-height:1.55}
+.sec-h{font-weight:800;font-size:18px;letter-spacing:-.02em;margin-top:8px}
+
+/* barra inferior y aviso */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(16,24,40,.05);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:0 max(16px,env(safe-area-inset-left,0px))}
+.nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;font-size:12px;font-weight:600;color:var(--muted)}
+.nav button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button[aria-current="page"]{color:var(--accent)}
+.nav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:28%;right:28%;height:3px;border-radius:0 0 4px 4px;background:var(--accent)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:80;display:flex;align-items:center;gap:14px;max-width:min(520px,calc(100% - 32px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.toast button{color:var(--accent-soft);font-weight:800;min-height:36px;padding:0 6px;border-radius:8px}
+@keyframes up{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.chev{transition:none!important}}
+
+@media print{
+  @page{size:landscape;margin:10mm}
+  body>*:not(#sheetFridge){display:none!important}
+  body::before{display:none!important}
+  #sheetFridge:not([hidden]){display:block!important;position:static!important;background:#fff!important}
+  #sheetFridge .sheet{display:block!important;max-height:none!important;height:auto!important;animation:none!important;padding:0!important;box-shadow:none!important}
+  #sheetFridge .sheet-body{overflow:visible!important;padding:0!important}
+  #sheetFridge .no-print{display:none!important}
+  #sheetFridge,#sheetFridge *{color:#000!important;background:#fff!important;border-color:#888!important}
+  #sheetFridge th,#sheetFridge td.m{background:#e6e6e6!important}
+  .fr-scroll{overflow:visible!important;border:0!important}
+  .fr-table{min-width:0!important;font-size:9pt}
+  .fr-block{break-inside:avoid;page-break-inside:avoid}
+  .fr-block + .fr-block{break-before:page;page-break-before:always}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+  <header class="app-head">
+    <div style="min-width:0">
+      <p class="hello" id="hello" hidden></p>
+      <h1>Planificador de Dieta</h1>
+    </div>
+    <button id="headAvatar" data-act="tab" data-v="perfil" aria-label="Mi perfil" style="border-radius:50%"></button>
+  </header>
+
+  <!-- MENÚ -->
+  <section id="tab-menu" class="stack" aria-label="Menú">
+    <div class="row-ctl">
+      <div class="seg" id="weekSeg" role="group" aria-label="Semana">
+        <button data-act="week" data-v="0">Semana 1</button>
+        <button data-act="week" data-v="1">Semana 2</button>
+      </div>
+      <button class="icon-sq" data-act="settings" id="settingsBtn" aria-label="Ajustes del menú"></button>
+    </div>
+    <div class="strip" id="strip"></div>
+    <div class="day-block total" id="total"></div>
+    <div class="card list" id="meals"></div>
+    <button class="btn block" data-act="fridge">Ver menú de las 2 semanas</button>
+  </section>
+
+  <!-- SÚPER -->
+  <section id="tab-super" class="stack" aria-label="Súper" hidden>
+    <div class="seg" id="scopeSeg" role="group" aria-label="Qué semanas incluir">
+      <button data-act="scope" data-v="all">2 semanas</button>
+      <button data-act="scope" data-v="0">Semana 1</button>
+      <button data-act="scope" data-v="1">Semana 2</button>
+    </div>
+    <div class="sticky" id="superBar"></div>
+    <div id="superList"></div>
+    <div class="btn-row">
+      <button class="btn primary" data-act="copySuper">Copiar lista</button>
+      <button class="btn" data-act="exportSuper">Exportar Excel</button>
+      <button class="btn" data-act="uncheck">Desmarcar todo</button>
+    </div>
+  </section>
+
+  <!-- PLATILLOS -->
+  <section id="tab-lib" class="stack" aria-label="Platillos" hidden>
+    <div class="sticky lib-bar">
+      <input class="search" id="libSearch" type="search" placeholder="Buscar platillo" aria-label="Buscar platillo" autocomplete="off">
+      <button class="icon-sq" data-act="libMore" id="libMoreBtn" aria-label="Más opciones"></button>
+    </div>
+    <input id="fileIn" class="vh" type="file" accept=".xlsx" tabindex="-1" aria-hidden="true">
+    <div class="chips" id="libChips"></div>
+    <p class="progress" id="libCount"></p>
+    <div class="stack" id="libList"></div>
+    <p class="credit">Tus platillos se guardan en este teléfono. Haz un respaldo en Excel de vez en cuando.</p>
+    <div style="height:64px"></div>
+    <button class="fab" data-act="newFood" id="fabBtn" aria-label="Nuevo platillo"></button>
+  </section>
+
+  <!-- PERFIL -->
+  <section id="tab-perfil" class="stack" aria-label="Perfil" hidden>
+    <div class="card stack">
+      <div class="avatar-row">
+        <div id="avatarBig"></div>
+        <div class="col">
+          <label class="btn sm" for="photoIn" style="cursor:pointer">Cambiar foto</label>
+          <input id="photoIn" type="file" accept="image/*" hidden>
+          <button class="link danger" data-act="rmPhoto" id="rmPhotoBtn" hidden>Quitar foto</button>
+        </div>
+      </div>
+      <div class="field"><label for="pName">Tu nombre (opcional)</label><input id="pName" type="text" placeholder="Ej. Sergio" autocomplete="off"></div>
+      <div class="field"><label for="pEmail">Correo (opcional)</label><input id="pEmail" type="email" inputmode="email" placeholder="tu@correo.com" autocomplete="off"></div>
+      <p class="note">Nada de esto es obligatorio. Se guarda solo en este teléfono, no hay cuenta en línea ni servidor.</p>
+    </div>
+
+    <h3 class="sec-h">Apariencia</h3>
+    <div class="card stack">
+      <div class="seg" id="themeSeg" role="group" aria-label="Apariencia">
+        <button data-act="theme" data-v="auto">Automático</button>
+        <button data-act="theme" data-v="light">Claro</button>
+        <button data-act="theme" data-v="dark">Oscuro</button>
+      </div>
+      <p class="note">Automático usa la configuración de tu teléfono y cambia solo cuando tu teléfono pasa de modo claro a oscuro.</p>
+    </div>
+
+    <h3 class="sec-h">Personas en este teléfono</h3>
+    <p class="note">Cada persona tiene sus propios platillos, menú y lista del súper. Al cambiar de persona, la app muestra su información.</p>
+    <div class="stack" id="userList"></div>
+    <button class="btn block" data-act="addUser">Agregar otra persona</button>
+
+    <h3 class="sec-h">Respaldo y envío</h3>
+    <div class="card stack">
+      <button class="btn primary block" data-act="shareDB">Compartir mi base de datos (Excel)</button>
+      <button class="btn block" data-act="mailList">Enviar lista del súper a mi correo</button>
+      <p class="note">Compartir abre las opciones de tu teléfono (correo, WhatsApp, Drive) para mandar el Excel. Con ese archivo puedes pasar tus platillos a otro teléfono usando Importar Excel en Platillos. Haz un respaldo de vez en cuando.</p>
+    </div>
+    <button class="btn danger block" data-act="delUser" id="delUserBtn" hidden>Eliminar esta persona</button>
+    <p class="credit">Desarrollado por Sergio Gaytán<br>Para uso de la Familia Gaytán Delgado</p>
+  </section>
+</div>
+
+<!-- Ajustes del menú -->
+<div class="overlay" id="sheetSettings" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="sheet-head"><h2 id="setTitle">Ajustes del menú</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <div class="settings">
+        <div class="field">
+          <span class="lbl" id="lblPersons">Personas</span>
+          <div class="stepper" role="group" aria-labelledby="lblPersons">
+            <button data-act="persons" data-v="-1" aria-label="Una persona menos">−</button>
+            <output id="personsOut">1</output>
+            <button data-act="persons" data-v="1" aria-label="Una persona más">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="limitIn">Límite kcal por persona</label>
+          <input id="limitIn" type="number" inputmode="numeric" min="500" step="50" value="2000">
+        </div>
+      </div>
+      <p class="note">Las cantidades de la lista del súper y de las recetas se multiplican por el número de personas. El límite de calorías es por persona.</p>
+      <button class="btn primary block" data-act="close">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Acciones (día, comida, más) -->
+<div class="overlay" id="sheetActions" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="actTitle">
+    <div class="sheet-head"><h2 id="actTitle"></h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body"><div class="acts" id="actBody"></div></div>
+  </div>
+</div>
+
+<!-- Copiar día -->
+<div class="overlay" id="sheetCopy" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="copyTitle">
+    <div class="sheet-head"><h2 id="copyTitle"></h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <p class="note">Elige los días que recibirán estas comidas. Reemplaza lo que ya tengan.</p>
+      <div class="stack" id="copyGrid"></div>
+      <button class="btn primary block" data-act="doCopy" id="copyGo" disabled>Elige los días</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nueva persona -->
+<div class="overlay" id="sheetUser" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="userTitle">
+    <div class="sheet-head"><h2 id="userTitle">Nueva persona</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <div class="field"><label for="nuName">Nombre (opcional)</label><input id="nuName" type="text" placeholder="Ej. Mamá" autocomplete="off"></div>
+      <label class="check" for="nuSeed"><input id="nuSeed" type="checkbox" checked>Empezar con los platillos iniciales</label>
+      <p class="note">Si no los quieres, la persona empieza con la lista vacía y agrega o importa los suyos.</p>
+      <button class="btn primary block" data-act="createUser">Crear persona</button>
+    </div>
+  </div>
+</div>
+
+<!-- Elegir platillo -->
+<div class="overlay" id="sheetPick" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+    <div class="sheet-head"><h2 id="pickTitle">Elegir</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <p class="pk-sum" id="pickSummary"></p>
+      <input class="search" id="pickSearch" type="search" placeholder="Buscar por nombre" aria-label="Buscar por nombre" autocomplete="off">
+      <div class="chips" id="pickChips"></div>
+      <div class="seg sm" id="pickSort" role="group" aria-label="Orden">
+        <button data-act="picksort" data-v="name">Orden A–Z</button>
+        <button data-act="picksort" data-v="kcal">Menos kcal primero</button>
+      </div>
+      <div class="stack" id="pickList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Receta -->
+<div class="overlay" id="sheetRecipe" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="recTitle">
+    <div class="sheet-head"><h2 id="recTitle"></h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body" id="recBody"></div>
+  </div>
+</div>
+
+<!-- Nuevo / editar platillo -->
+<div class="overlay" id="sheetForm" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="sheet-head"><h2 id="formTitle">Nuevo platillo</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <div class="field"><label for="fNombre">Nombre del platillo</label><input id="fNombre" type="text" placeholder="Ej. Huevo con cebolla" autocomplete="off"></div>
+      <div class="settings">
+        <div class="field"><label for="fCat">Categoría</label><select id="fCat"></select></div>
+        <div class="field"><label for="fKcal">Kcal por porción</label><input id="fKcal" type="number" inputmode="decimal" min="0" placeholder="350"></div>
+      </div>
+      <div class="field"><span class="lbl">Ingredientes por porción (hasta 8)</span><div class="stack" id="ingRows"></div></div>
+      <button class="btn" data-act="addIng" id="addIngBtn">Añadir ingrediente</button>
+      <div class="field"><label for="fPrep">Modo de preparación</label><textarea id="fPrep" placeholder="Describe los pasos"></textarea></div>
+      <p class="msg" id="formMsg" role="alert"></p>
+      <button class="btn primary block" data-act="saveFood" id="saveFoodBtn">Guardar platillo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Menú de las 2 semanas -->
+<div class="overlay" id="sheetFridge" hidden>
+  <div class="sheet full" role="dialog" aria-modal="true" aria-labelledby="frTitle">
+    <div class="sheet-head no-print"><h2 id="frTitle">Menú de las 2 semanas</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body" id="frBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<nav class="nav" aria-label="Secciones">
+  <div class="nav-in">
+    <button data-act="tab" data-v="menu" aria-current="page"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Menú</button>
+    <button data-act="tab" data-v="super"><svg viewBox="0 0 24 24"><path d="M3 4h2.5l2.2 10.5h10.6L20.5 8H6.4"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg>Súper</button>
+    <button data-act="tab" data-v="lib"><svg viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Platillos</button>
+    <button data-act="tab" data-v="perfil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.9-3.6 3.8-5.4 7.5-5.4s6.6 1.8 7.5 5.4"/></svg>Perfil</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+'use strict';
+var DAYS=['Día 1','Día 2','Día 3','Día 4','Día 5','Día 6','Día 7'];
+var MEALS=['Desayuno','Comida','Snack','Cena'];
+var MEAL_PL={Desayuno:'desayunos',Comida:'comidas',Snack:'snacks',Cena:'cenas'};
+var SLOT_CATS={Desayuno:['Desayuno','Desayuno/Cena'],Comida:['Comida'],Snack:['Snack'],Cena:['Cena','Desayuno/Cena']};
+var CATS=['Desayuno','Comida','Snack','Cena','Desayuno/Cena'];
+var CAT_COLOR={'Desayuno':'#d99a2b','Comida':'#3b6fe0','Snack':'#8f6ae0','Cena':'#2f3e8f','Desayuno/Cena':'#1f9bb5'};
+var CAT_LABEL={'Desayuno':'Desayunos','Comida':'Comidas','Snack':'Snacks','Cena':'Cenas','Desayuno/Cena':'Desayuno o cena'};
+var UNITS=['g','kg','ml','l','tsp','tbsp','taza','pieza','rebanada','diente','pizca','al gusto','lata','sobre','loncha','barra','cucharada','cucharadita','hoja','rama'];
+var SEED=[{"name": "Huevos con jamón de pavo y espinaca", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamón de pavo", "amt": 2.0, "unit": "rebanada"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}, {"name": "Aceite en spray", "amt": 1.0, "unit": "pizca"}], "prep": "Sofreír la espinaba con un toque de aceite en spray, agregar el jamón de pavo picado y los huevos. Revolver a fuego medio hasta cuajar.", "id": 1}, {"name": "Yogurt griego con nueces y fruta", "cat": "Desayuno", "kcal": 320.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Manzana", "amt": 0.5, "unit": "pieza"}], "prep": "Servir el yogurt en un tazón, agregar la nuez picada y la manzana en cubos.", "id": 2}, {"name": "Sandwich integral de pavo", "cat": "Desayuno/Cena", "kcal": 300.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Jamón de pavo", "amt": 2.0, "unit": "rebanada"}, {"name": "Queso panela", "amt": 1.0, "unit": "rebanada"}, {"name": "Aguacate", "amt": 0.25, "unit": "pieza"}, {"name": "Lechuga", "amt": 1.0, "unit": "hoja"}, {"name": "Jitomate", "amt": 2.0, "unit": "rebanada"}], "prep": "Armar el sándwich colocando jamón, queso, aguacate, lechuga y jitomate entre las rebanadas de pan integral.", "id": 3}, {"name": "Omelette de claras con queso panela", "cat": "Desayuno", "kcal": 170.0, "ings": [{"name": "Clara de huevo", "amt": 4.0, "unit": "pieza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Batir las claras, verter en sartén antiadherente, agregar el queso panela y doblar al cuajar.", "id": 4}, {"name": "Huevos a la mexicana", "cat": "Desayuno", "kcal": 170.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Chile", "amt": 1.0, "unit": "al gusto"}], "prep": "Sofreír jitomate, cebolla y chile picados, agregar los huevos batidos y cocinar revolviendo.", "id": 5}, {"name": "Mollete integral", "cat": "Desayuno", "kcal": 350.0, "ings": [{"name": "Bolillo integral", "amt": 1.0, "unit": "pieza"}, {"name": "Frijoles refritos", "amt": 4.0, "unit": "cucharada"}, {"name": "Queso panela", "amt": 30.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Partir el bolillo a la mitad y retirar el migajón. Untar frijoles refritos, agregar queso panela y gratinar en sartén u horno. Servir con pico de gallo (jitomate y cebolla picados).", "id": 6}, {"name": "Avena con leche y fruta", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Avena", "amt": 0.5, "unit": "taza"}, {"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Canela", "amt": 1.0, "unit": "pizca"}, {"name": "Manzana o plátano", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la avena con la leche a fuego medio. Agregar canela y la fruta en trozos al servir.", "id": 7}, {"name": "Chilaquiles horneados", "cat": "Desayuno", "kcal": 310.0, "ings": [{"name": "Tortilla de maíz", "amt": 4.0, "unit": "pieza"}, {"name": "Salsa verde o roja", "amt": 0.5, "unit": "taza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Cortar las tortillas en triángulos y hornear 10 min. Bañar con salsa, agregar queso y hornear 5 min más.", "id": 8}, {"name": "Hotcakes de avena", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Avena", "amt": 0.5, "unit": "taza"}, {"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Canela", "amt": 1.0, "unit": "pizca"}], "prep": "Licuar la avena con el huevo y la canela hasta obtener una mezcla homogénea. Cocinar en sartén antiadherente por ambos lados.", "id": 9}, {"name": "Licuado de proteína", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Fruta", "amt": 0.5, "unit": "taza"}, {"name": "Nuez", "amt": 10.0, "unit": "g"}], "prep": "Licuar todos los ingredientes hasta integrar. Servir frío.", "id": 10}, {"name": "Huevos rancheros", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Salsa roja", "amt": 0.5, "unit": "taza"}], "prep": "Freír ligeramente las tortillas, colocar los huevos estrellados encima y bañar con salsa caliente.", "id": 11}, {"name": "Yogurt con granola y Manzana", "cat": "Desayuno", "kcal": 330.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Granola", "amt": 30.0, "unit": "g"}, {"name": "Manzana", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 12}, {"name": "Smoothie de frutos rojos", "cat": "Desayuno", "kcal": 180.0, "ings": [{"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Frutos rojos", "amt": 0.5, "unit": "taza"}, {"name": "Nuez", "amt": 10.0, "unit": "g"}], "prep": "Licuar todos los ingredientes hasta obtener una consistencia uniforme.", "id": 13}, {"name": "Pan integral con crema de cacahuate", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Crema de cacahuate", "amt": 1.0, "unit": "cucharada"}], "prep": "Untar la crema de cacahuate sobre el pan integral.", "id": 14}, {"name": "Wrap de huevo y espinaca", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Tortilla integral", "amt": 1.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar el huevo revuelto con la espinaca. Colocar sobre la tortilla, enrollar y guardar en recipiente hermético si se lleva de lonchera.", "id": 15}, {"name": "Burrito de huevo y pavo", "cat": "Desayuno", "kcal": 330.0, "ings": [{"name": "Tortilla integral", "amt": 1.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamón de pavo", "amt": 60.0, "unit": "g"}], "prep": "Cocinar el huevo revuelto junto con el jamón de pavo picado. Colocar sobre la tortilla y enrollar.", "id": 16}, {"name": "Ceviche chico de pescado", "cat": "Desayuno", "kcal": 180.0, "ings": [{"name": "Pescado blanco", "amt": 120.0, "unit": "g"}, {"name": "Limón", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Cilantro", "amt": 1.0, "unit": "al gusto"}], "prep": "Cortar el pescado en cubos pequeños y marinar en jugo de limón hasta que esté cocido (ceviche). Agregar jitomate, cebolla y cilantro picados.", "id": 17}, {"name": "Sandwich de huevo", "cat": "Desayuno", "kcal": 320.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Lechuga", "amt": 1.0, "unit": "hoja"}], "prep": "Cocinar el huevo al gusto (cocido o revuelto) y colocar entre las rebanadas de pan con lechuga.", "id": 18}, {"name": "Pollo a la plancha con arroz y ensalada", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Arroz integral cocido", "amt": 0.5, "unit": "taza"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Limón", "amt": 0.5, "unit": "pieza"}, {"name": "Sal", "amt": 1.0, "unit": "pizca"}, {"name": "Pimienta", "amt": 1.0, "unit": "pizca"}], "prep": "Sazonar la pechuga con sal, pimienta y ajo. Cocinar a la plancha 6-8 min por lado. Servir con arroz cocido y ensalada de lechuga, jitomate y pepino aliñada con limón.", "id": 19}, {"name": "Bistec con calabacita", "cat": "Comida", "kcal": 340.0, "ings": [{"name": "Bistec de res", "amt": 150.0, "unit": "g"}, {"name": "Calabacita", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar el bistec a la plancha. Saltear la calabacita en cubos con poco aceite.", "id": 20}, {"name": "Picadillo de carne molida", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Carne molida magra", "amt": 150.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Ajo", "amt": 1.0, "unit": "diente"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Papa", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la carne molida con jitomate, cebolla y ajo picados. Agregar zanahoria y papa en cubos pequeños. Usar poco aceite y cocinar hasta que las verduras estén suaves.", "id": 21}, {"name": "Pollo en salsa verde con calabaza", "cat": "Comida", "kcal": 390.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Calabaza", "amt": 1.0, "unit": "taza"}, {"name": "Salsa verde", "amt": 0.5, "unit": "taza"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Cocinar el pollo y bañar con salsa verde. Acompañar con calabaza salteada y tortillas.", "id": 22}, {"name": "Carne asada con ensalada", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Carne de res", "amt": 150.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Asar la carne sazonada con sal y pimienta. Servir con ensalada y tortillas.", "id": 23}, {"name": "Caldo de pollo con verduras", "cat": "Comida", "kcal": 350.0, "ings": [{"name": "Pollo", "amt": 150.0, "unit": "g"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Calabaza", "amt": 0.5, "unit": "pieza"}, {"name": "Apio", "amt": 1.0, "unit": "rama"}, {"name": "Arroz", "amt": 2.0, "unit": "cucharada"}], "prep": "Hervir el pollo con las verduras hasta cocer. Sazonar con sal y agregar un poco de arroz.", "id": 24}, {"name": "Pollo en fajitas con arroz", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pimiento", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}], "prep": "Cortar el pollo en tiras y cocinar con pimiento y cebolla. Servir con arroz.", "id": 25}, {"name": "Bistec con arroz", "cat": "Comida", "kcal": 480.0, "ings": [{"name": "Bistec de res", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar el bistec a la plancha y servir con arroz cocido.", "id": 26}, {"name": "Carne molida con verduras", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Carne molida magra", "amt": 150.0, "unit": "g"}, {"name": "Verduras mixtas", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar la carne molida con las verduras picadas hasta que estén suaves.", "id": 27}, {"name": "Caldo de res con verduras", "cat": "Comida", "kcal": 400.0, "ings": [{"name": "Carne de res", "amt": 150.0, "unit": "g"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Calabaza", "amt": 0.5, "unit": "pieza"}], "prep": "Hervir la carne con las verduras durante aproximadamente 40 minutos hasta que estén suaves.", "id": 28}, {"name": "Pollo al horno con calabaza", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Pollo", "amt": 150.0, "unit": "g"}, {"name": "Calabaza", "amt": 1.0, "unit": "taza"}, {"name": "Aceite de oliva", "amt": 1.0, "unit": "cucharadita"}], "prep": "Hornear el pollo sazonado. Saltear la calabaza con un poco de aceite.", "id": 29}, {"name": "Carne deshebrada con frijoles", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Carne deshebrada", "amt": 150.0, "unit": "g"}, {"name": "Frijoles cocidos", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar la carne hasta poder deshebrarla. Servir acompañada de frijoles cocidos.", "id": 30}, {"name": "Pescado a la plancha con arroz y verduras", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Pescado", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}, {"name": "Verduras al vapor", "amt": 1.0, "unit": "taza"}, {"name": "Limón", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar el pescado a la plancha con limón y sal. Servir con arroz y verduras al vapor.", "id": 31}, {"name": "Pollo con pasta integral", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pasta integral cocida", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar el pollo a la plancha y mezclar o servir junto con la pasta integral cocida.", "id": 32}, {"name": "Bowl de pollo con quinoa", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Quinoa cocida", "amt": 0.5, "unit": "taza"}, {"name": "Verduras mixtas", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar la pechuga a la plancha con sal, pimienta y aceite de oliva. Armar el bowl con quinoa cocida y verduras.", "id": 33}, {"name": "Pollo al limón", "cat": "Comida", "kcal": 400.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Limón", "amt": 1.0, "unit": "pieza"}, {"name": "Ajo", "amt": 1.0, "unit": "diente"}], "prep": "Marinar el pollo con jugo de limón y ajo. Cocinar a la plancha o al horno.", "id": 34}, {"name": "Albóndigas de res", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Carne molida", "amt": 150.0, "unit": "g"}, {"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Pan molido", "amt": 2.0, "unit": "cucharada"}], "prep": "Mezclar la carne molida con huevo y pan molido. Formar bolitas y cocinar en salsa de jitomate o al horno.", "id": 35}, {"name": "Bowl de pollo mediterráneo", "cat": "Comida", "kcal": 480.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar el pollo a la plancha. Armar el bowl con pepino, jitomate y aguacate.", "id": 36}, {"name": "Bowl estilo chipotle", "cat": "Comida", "kcal": 550.0, "ings": [{"name": "Pollo o carne de res", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}, {"name": "Frijoles cocidos", "amt": 0.25, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar la proteína elegida. Armar el bowl con arroz, frijoles y pico de gallo (jitomate y cebolla picados).", "id": 37}, {"name": "Pollo con papa al horno", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Papa", "amt": 1.0, "unit": "pieza"}], "prep": "Hornear el pollo sazonado junto con la papa en cubos hasta que ambos estén cocidos.", "id": 38}, {"name": "Chuleta magra con ensalada", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Chuleta magra", "amt": 150.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la chuleta a la plancha. Servir con ensalada de lechuga y jitomate.", "id": 39}, {"name": "Aguachile moderado", "cat": "Comida", "kcal": 280.0, "ings": [{"name": "Camarón", "amt": 150.0, "unit": "g"}, {"name": "Limón", "amt": 2.0, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Chile", "amt": 1.0, "unit": "al gusto"}], "prep": "Marinar el camarón en jugo de limón. Agregar pepino en rodajas y chile al gusto. Evitar el exceso de tostadas como acompañamiento.", "id": 40}, {"name": "Yogurt griego natural", "cat": "Snack", "kcal": 100.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}], "prep": "Servir directamente como colación.", "id": 41}, {"name": "Manzana con almendras", "cat": "Snack", "kcal": 170.0, "ings": [{"name": "Manzana", "amt": 1.0, "unit": "pieza"}, {"name": "Almendra", "amt": 10.0, "unit": "pieza"}], "prep": "Lavar y cortar la manzana en gajos. Acompañar con las almendras.", "id": 42}, {"name": "Almendras", "cat": "Snack", "kcal": 170.0, "ings": [{"name": "Almendra", "amt": 30.0, "unit": "g"}], "prep": "Consumir directamente como colación.", "id": 43}, {"name": "Gelatina light", "cat": "Snack", "kcal": 15.0, "ings": [{"name": "Gelatina light", "amt": 1.0, "unit": "pieza"}], "prep": "Consumir directamente como colación.", "id": 44}, {"name": "Pera", "cat": "Snack", "kcal": 100.0, "ings": [{"name": "Pera", "amt": 1.0, "unit": "pieza"}], "prep": "Lavar y consumir directamente.", "id": 45}, {"name": "Tacos de bistec", "cat": "Cena", "kcal": 310.0, "ings": [{"name": "Bistec de res", "amt": 120.0, "unit": "g"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Cocinar el bistec a la plancha, cortar en tiras y servir en tortillas de maíz.", "id": 46}, {"name": "Ensalada de pollo", "cat": "Cena", "kcal": 350.0, "ings": [{"name": "Pollo", "amt": 120.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar el pollo y cortarlo en tiras. Mezclar con lechuga, jitomate y pepino.", "id": 47}, {"name": "Quesadillas de queso panela", "cat": "Desayuno/Cena", "kcal": 320.0, "ings": [{"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Calentar las tortillas con el queso panela en comal hasta que se derrita.", "id": 48}, {"name": "Tostadas de pollo", "cat": "Cena", "kcal": 300.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Pollo deshebrado", "amt": 100.0, "unit": "g"}], "prep": "Colocar el pollo deshebrado sobre las tostadas. Acompañar con verduras al gusto.", "id": 49}, {"name": "Rollos de jamón con queso panela", "cat": "Cena", "kcal": 180.0, "ings": [{"name": "Jamón de pavo", "amt": 4.0, "unit": "rebanada"}, {"name": "Queso panela", "amt": 60.0, "unit": "g"}], "prep": "Enrollar una rebanada de jamón de pavo con un trozo de queso panela. Repetir hasta formar 3-4 rollos.", "id": 50}, {"name": "Atún con aguacate", "cat": "Cena", "kcal": 320.0, "ings": [{"name": "Atún en agua", "amt": 1.0, "unit": "lata"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}], "prep": "Escurrir el atún y mezclar con el aguacate machacado o en cubos.", "id": 51}, {"name": "Ensalada de atún", "cat": "Cena", "kcal": 250.0, "ings": [{"name": "Atún en agua", "amt": 1.0, "unit": "lata"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Escurrir el atún y mezclar con las verduras picadas.", "id": 52}, {"name": "Tostadas de jocoque", "cat": "Cena", "kcal": 180.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Jocoque", "amt": 3.0, "unit": "cucharada"}], "prep": "Untar el jocoque sobre las tostadas. Agregar verduras al gusto.", "id": 53}, {"name": "Huevo con espinaca", "cat": "Desayuno/Cena", "kcal": 180.0, "ings": [{"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Clara de huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}], "prep": "Sofreír la espinaca y agregar el huevo y las claras. Revolver hasta cuajar.", "id": 54}, {"name": "Queso panela con jitomate", "cat": "Cena", "kcal": 160.0, "ings": [{"name": "Queso panela", "amt": 60.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}], "prep": "Cortar el queso panela y el jitomate en rebanadas y servir juntos.", "id": 55}, {"name": "Omelette de champiñones", "cat": "Desayuno/Cena", "kcal": 220.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Champiñón", "amt": 0.5, "unit": "taza"}], "prep": "Saltear los champiñones, agregar el huevo batido y cocinar en sartén antiadherente hasta cuajar.", "id": 56}, {"name": "Ensalada de pavo", "cat": "Cena", "kcal": 220.0, "ings": [{"name": "Jamón de pavo", "amt": 60.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Mezclar el jamón de pavo en tiras con las verduras picadas.", "id": 57}, {"name": "Tostadas con aguacate", "cat": "Desayuno/Cena", "kcal": 260.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}, {"name": "Limón", "amt": 0.25, "unit": "pieza"}], "prep": "Machacar el aguacate con limón y sal. Untar sobre las tostadas.", "id": 58}, {"name": "Tostadas de tinga", "cat": "Cena", "kcal": 330.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Pollo deshebrado", "amt": 100.0, "unit": "g"}, {"name": "Salsa chipotle", "amt": 2.0, "unit": "cucharada"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar el pollo deshebrado con salsa chipotle y cebolla. Servir sobre las tostadas.", "id": 59}, {"name": "Yogurt con granola y Platano", "cat": "Desayuno", "kcal": 285.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Granola", "amt": 30.0, "unit": "g"}, {"name": "Platano", "amt": 0.5, "unit": "pieza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 60}, {"name": "Yogurt con nuez y Melon", "cat": "Desayuno", "kcal": 265.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Melon", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 61}, {"name": "Yogurt con nuez y Papaya", "cat": "Desayuno", "kcal": 265.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Papaya", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 62}, {"name": "Tostadas con jocoque", "cat": "Desayuno", "kcal": 130.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Jocoque de chipotle", "amt": 30.0, "unit": "g"}], "prep": "Unta 2 tostadas con 2 cucharadas de jocoque de chipotle cada una", "id": 63}, {"name": "Tostadas con jocoque y aguacate", "cat": "Cena", "kcal": 160.0, "ings": [{"name": "Tostada salma", "amt": 3.0, "unit": "pieza"}, {"name": "Jocoque de chipotle", "amt": 30.0, "unit": "g"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}, {"name": "Salsa maggi", "amt": 5.0, "unit": "g"}], "prep": "Unta 3 tostadas con 2 cucharadas de jocoque de chipotle cada una, agrega 1/4 de aguacate y sazona con salsa maggi y valentina", "id": 64}, {"name": "Tostadas con aguacate y huevo", "cat": "Desayuno", "kcal": 300.0, "ings": [{"name": "Tostada salma", "amt": 3.0, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.75, "unit": "pieza"}, {"name": "huevo", "amt": 2.0, "unit": "pieza"}], "prep": "Unta 3 tostadas con 1/4 de aguacate cada una y agrega un huevo cocido a cada una", "id": 65}, {"name": "Galletas maria", "cat": "Snack", "kcal": 115.0, "ings": [{"name": "Galletas marias", "amt": 5.0, "unit": "pieza"}], "prep": "Pieza", "id": 66}, {"name": "Manzana", "cat": "Snack", "kcal": 95.0, "ings": [{"name": "Manzana", "amt": 1.0, "unit": "pieza"}], "prep": "Pieza", "id": 67}, {"name": "Uvas", "cat": "Snack", "kcal": 50.0, "ings": [{"name": "Uvas", "amt": 15.0, "unit": "pieza"}], "prep": "Pieza", "id": 68}, {"name": "Chicharrones", "cat": "Snack", "kcal": 85.0, "ings": [{"name": "Chicharron", "amt": 0.5, "unit": "taza"}], "prep": "Pieza", "id": 69}, {"name": "Mix de nueces", "cat": "Snack", "kcal": 95.0, "ings": [{"name": "Mix de nueces", "amt": 15.0, "unit": "g"}], "prep": "Pieza", "id": 70}, {"name": "Rollos de jamon", "cat": "Snack", "kcal": 75.0, "ings": [{"name": "Jamon de pavo", "amt": 3.0, "unit": "pieza"}], "prep": "Haz rollos y corta en 3 porciones cada jamon", "id": 71}, {"name": "Omelette de verduras", "cat": "Desayuno/Cena", "kcal": 160.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.25, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.2, "unit": "pieza"}, {"name": "Chile serrano", "amt": 2.0, "unit": "pieza"}], "prep": "Pica la verdura en trozos pequeños, doralos y agregale el huevo batido", "id": 72}, {"name": "Omelette de jamon con queso", "cat": "Desayuno/Cena", "kcal": 305.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamon", "amt": 2.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.2, "unit": "pieza"}, {"name": "Queso panela", "amt": 30.0, "unit": "g"}], "prep": "", "id": 73}];
+var FRAMED=(function(){try{return window.top!==window.self;}catch(e){return true;}})();
+
+/* ---------- Iconos ---------- */
+var IC={
+  sun:'<circle cx="12" cy="12" r="3.8"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+  plate:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/>',
+  apple:'<path d="M12 8c-1.5-1.2-5-1.4-6 2-.9 3.2.9 8 3.4 9.4 1 .5 1.8.2 2.6-.1.8.3 1.6.6 2.6.1 2.5-1.4 4.3-6.2 3.4-9.4-1-3.4-4.5-3.2-6-2z"/><path d="M12 8c0-2 .8-3.4 2.4-4"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+  dots:'<circle cx="5.5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18.5" cy="12" r="1.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  sliders:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  star:'<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8z"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  swap:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  book:'<path d="M5 4.5h11a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
+  up:'<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>',
+  down:'<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'
+};
+function ic(n,cls){return '<svg class="ic'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+IC[n]+'</svg>';}
+var MEAL_IC={Desayuno:'sun',Comida:'plate',Snack:'apple',Cena:'moon'};
+var CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+
+/* ---------- Súper: categorías ---------- */
+var SUPER_CATS=[
+  {id:'verd',label:'Verduras',kw:['lechuga','espinaca','brocoli','zanahoria','cebolla','ajo','jitomate','tomate','pimiento','pepino','calabaza','calabacita','chile','nopal','acelga','coliflor','betabel','ejote','chayote','apio','champinon','hongo','rabano','papa','col','elote','cilantro','perejil','verdura']},
+  {id:'fruta',label:'Frutas',kw:['manzana','platano','fresa','naranja','limon','aguacate','mango','uva','pera','melon','sandia','pina','kiwi','mandarina','durazno','ciruela','granada','fruta','frutos rojos','arandano','papaya']},
+  {id:'carne',label:'Carnes',kw:['res','carne','bistec','filete','milanesa','costilla','puerco','cerdo','chorizo','salchicha','tocino','molida','chuleta','chicharron']},
+  {id:'pollo',label:'Pollo y pavo',kw:['pollo','pechuga','muslo','pavo','jamon']},
+  {id:'pesc',label:'Pescados y mariscos',kw:['atun','salmon','pescado','camaron','sardina','tilapia','mojarra','bacalao']},
+  {id:'lact',label:'Huevo y lácteos',kw:['huevo','clara','leche','yogurt','queso','panela','crema','jocoque','mantequilla','cottage','requeson']},
+  {id:'pan',label:'Panes y cereales',kw:['arroz','pasta','fideo','avena','granola','pan','bolillo','tortilla','tostada','harina','maiz','cebada','quinoa','hotcake','cereal','galleta']},
+  {id:'leg',label:'Legumbres',kw:['lenteja','garbanzo','frijol','alubia']},
+  {id:'abar',label:'Abarrotes',kw:['caldo','aceite','vinagre','salsa','mostaza','ketchup','mayonesa','miel','mermelada','hummus','mantequilla de mani','crema de cacahuate','cacahuate','almendra','nuez','semilla','cacao','chocolate','gelatina','mani','nueces']},
+  {id:'esp',label:'Especias y condimentos',kw:['sal','pimienta','canela','comino','oregano','laurel','tomillo','albahaca','eneldo','curcuma','paprika','jengibre','azucar','vainilla']},
+  {id:'sup',label:'Suplementos y bebidas',kw:['proteina','proteica','barrita','suplemento','jugo','refresco','bebida']},
+  {id:'otro',label:'Otros',kw:[]}
+];
+var MATCH_ORDER=['abar','sup','esp','pollo','pesc','carne','lact','pan','leg','fruta','verd'];
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+function catOf(name){
+  var n=norm(name), words=n.split(/[^a-z0-9]+/).filter(Boolean);
+  for(var i=0;i<MATCH_ORDER.length;i++){
+    var c=SUPER_CATS.filter(function(x){return x.id===MATCH_ORDER[i];})[0];
+    for(var j=0;j<c.kw.length;j++){
+      var k=c.kw[j];
+      if(k.indexOf(' ')>-1){ if(n.indexOf(k)>-1) return c.id; }
+      else if(words.some(function(w){return w===k||w===k+'s'||w===k+'es';})) return c.id;
+    }
+  }
+  return 'otro';
+}
+
+/* ---------- Estado: varias personas en el mismo teléfono, cada una con sus datos ---------- */
+var LS='planificador-dieta-v3';
+var TABS=['menu','super','lib','perfil'];
+function blankCal(){var a=[];for(var w=0;w<2;w++){a.push([]);for(var d=0;d<7;d++)a[w].push({Desayuno:null,Comida:null,Snack:null,Cena:null});}return a;}
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function uid(){return 'u'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);}
+function newState(withSeed){return {foods:withSeed?SEED.map(clone):[],cal:blankCal(),favs:{},recent:[],limit:2000,persons:1,checked:{},tab:'menu',week:0,day:0,scope:'all',libCat:'Todos'};}
+function fixState(s){
+  if(!Array.isArray(s.foods)) s.foods=[];
+  var ok=Array.isArray(s.cal)&&s.cal.length===2&&s.cal.every(function(w){return Array.isArray(w)&&w.length===7;});
+  if(!ok) s.cal=blankCal();
+  if(!s.checked||typeof s.checked!=='object') s.checked={};
+  if(!s.favs||typeof s.favs!=='object') s.favs={};
+  if(!Array.isArray(s.recent)) s.recent=[];
+  s.limit=Number(s.limit)||2000; s.persons=Math.min(8,Math.max(1,Number(s.persons)||1));
+  if(TABS.indexOf(s.tab)<0) s.tab='menu';
+  if(s.week!==0&&s.week!==1) s.week=0;
+  if(!(s.day>=0&&s.day<=6)) s.day=0;
+  if(!s.scope) s.scope='all'; if(!s.libCat) s.libCat='Todos';
+}
+var ROOT={active:'u1',users:[{id:'u1',name:'',email:'',photo:''}],data:{u1:newState(true)}};
+try{
+  var raw=localStorage.getItem(LS);
+  if(raw){var p=JSON.parse(raw); if(p&&Array.isArray(p.users)&&p.users.length&&p.data&&typeof p.data==='object') ROOT=p;}
+}catch(e){}
+ROOT.users.forEach(function(u){if(!ROOT.data[u.id]) ROOT.data[u.id]=newState(false); fixState(ROOT.data[u.id]);});
+if(!ROOT.data[ROOT.active]) ROOT.active=ROOT.users[0].id;
+var S=ROOT.data[ROOT.active];
+function me(){return ROOT.users.filter(function(u){return u.id===ROOT.active;})[0];}
+function save(){try{localStorage.setItem(LS,JSON.stringify(ROOT));}catch(e){}}
+function applyTheme(){
+  var th=ROOT.theme, el=document.documentElement;
+  if(th==='light'||th==='dark') el.setAttribute('data-theme',th); else el.removeAttribute('data-theme');
+}
+function renderTheme(){
+  var th=(ROOT.theme==='light'||ROOT.theme==='dark')?ROOT.theme:'auto';
+  [].forEach.call($('#themeSeg').children,function(b){b.setAttribute('aria-pressed',String(b.dataset.v===th));});
+}
+try{if(navigator.storage&&navigator.storage.persist) navigator.storage.persist();}catch(e){}
+
+/* ---------- Utilidades ---------- */
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function round2(n){return Math.round(n*100)/100;}
+function kfmt(n){return Math.round(n).toLocaleString('es-MX');}
+function food(id){for(var i=0;i<S.foods.length;i++) if(S.foods[i].id===id) return S.foods[i]; return null;}
+function nextId(){var m=0;S.foods.forEach(function(f){if(f.id>m)m=f.id;});return m+1;}
+var PL={pieza:'piezas',diente:'dientes',rebanada:'rebanadas',loncha:'lonchas',lata:'latas',taza:'tazas',sobre:'sobres',barra:'barras',cucharada:'cucharadas',cucharadita:'cucharaditas',hoja:'hojas',rama:'ramas'};
+function qty(amt,unit){
+  amt=round2(amt); unit=unit||'';
+  if(unit==='g'&&amt>=1000){return round2(amt/1000)+' kg';}
+  if(unit==='ml'&&amt>=1000){return round2(amt/1000)+' l';}
+  if(!amt) return unit||'—';
+  if(amt>1&&PL[unit]) unit=PL[unit];
+  return amt+(unit?' '+unit:'');
+}
+function ingLine(f,n){return esc(f.ings.slice(0,n).map(function(i){return i.name;}).join(', '))+(f.ings.length>n?'…':'');}
+var toastT;
+function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true;},3200);}
+var undoSnap=null;
+function snapshot(){undoSnap={uid:ROOT.active,cal:clone(S.cal),foods:clone(S.foods),favs:clone(S.favs),recent:clone(S.recent)};}
+function toastUndo(msg){
+  var t=$('#toast'); t.innerHTML='<span></span><button data-act="undo">Deshacer</button>';
+  t.firstChild.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){t.hidden=true;},7000);
+}
+function copyText(text){
+  function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);return ok;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(text).then(function(){return true;},function(){return fallback();});
+  }
+  return Promise.resolve(fallback());
+}
+function refreshAll(){
+  if(S.tab==='menu')renderMenu(); else if(S.tab==='super')renderSuper(); else if(S.tab==='lib')renderLib(); else renderPerfil();
+}
+
+/* ---------- Cálculos ---------- */
+function dayTotal(w,d){var t=0;MEALS.forEach(function(m){var f=food(S.cal[w][d][m]);if(f)t+=f.kcal||0;});return t;}
+function statusOf(total){
+  if(!total) return 'none';
+  if(total>=S.limit) return 'over';
+  if(total>=S.limit*.85) return 'warn';
+  return 'ok';
+}
+function buildList(scope){
+  var weeks=scope==='all'?[0,1]:[Number(scope)], tot={};
+  weeks.forEach(function(w){S.cal[w].forEach(function(day){MEALS.forEach(function(m){
+    var f=food(day[m]); if(!f) return;
+    f.ings.forEach(function(i){
+      var key=norm(i.name.trim())+'|'+norm(i.unit||'');
+      if(!tot[key]) tot[key]={key:key,name:i.name.trim(),unit:i.unit||'',amt:0,cat:catOf(i.name)};
+      tot[key].amt+=(i.amt||0)*S.persons;
+    });
+  });});});
+  return Object.keys(tot).map(function(k){return tot[k];});
+}
+
+/* ---------- Perfil ---------- */
+var PERSON_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.9-3.6 3.8-5.4 7.5-5.4s6.6 1.8 7.5 5.4"/></svg>';
+function avatarHTML(u,cls){
+  if(u.photo) return '<span class="avatar '+cls+'"><img src="'+esc(u.photo)+'" alt=""></span>';
+  var ini=(u.name||'').trim().charAt(0).toUpperCase();
+  return '<span class="avatar '+cls+'">'+(ini?esc(ini):PERSON_SVG)+'</span>';
+}
+function renderHeader(){
+  var u=me(), h=$('#hello'), first=(u.name||'').trim().split(/\s+/)[0];
+  h.hidden=!first; h.textContent=first?('Hola, '+first):'';
+  $('#headAvatar').innerHTML=avatarHTML(u,'sm');
+}
+function renderUsers(){
+  $('#userList').innerHTML=ROOT.users.map(function(u){
+    var n=ROOT.data[u.id].foods.length, on=u.id===ROOT.active;
+    return '<button class="user-row" data-act="switchUser" data-v="'+esc(u.id)+'" aria-pressed="'+on+'">'+avatarHTML(u,'md')+'<div><span class="u-name">'+esc(u.name||'Sin nombre')+'</span><small>'+n+(n===1?' platillo':' platillos')+'</small></div>'+(on?'<span class="badge">Activa</span>':'')+'</button>';
+  }).join('');
+}
+function renderPerfil(){
+  var u=me();
+  $('#avatarBig').innerHTML=avatarHTML(u,'lg');
+  $('#rmPhotoBtn').hidden=!u.photo;
+  if(document.activeElement!==$('#pName')) $('#pName').value=u.name||'';
+  if(document.activeElement!==$('#pEmail')) $('#pEmail').value=u.email||'';
+  renderUsers();
+  $('#delUserBtn').hidden=ROOT.users.length<2;
+  renderTheme();
+}
+function processPhoto(file){
+  if(!file) return;
+  var rd=new FileReader();
+  rd.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var s=256,c=document.createElement('canvas'); c.width=c.height=s;
+      var m=Math.min(img.width,img.height);
+      c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);
+      me().photo=c.toDataURL('image/jpeg',.82); save(); renderPerfil(); renderHeader(); toast('Foto actualizada');
+    };
+    img.onerror=function(){toast('No se pudo leer esa imagen');};
+    img.src=e.target.result;
+  };
+  rd.readAsDataURL(file);
+}
+function switchUser(id){
+  if(!ROOT.data[id]) return;
+  ROOT.active=id; S=ROOT.data[id]; S.tab='perfil'; undoSnap=null; save(); renderHeader(); setTab('perfil');
+  toast('Ahora usas el perfil de '+(me().name||'esta persona'));
+}
+function createUser(){
+  var id=uid(), name=$('#nuName').value.trim();
+  ROOT.users.push({id:id,name:name,email:'',photo:''});
+  ROOT.data[id]=newState($('#nuSeed').checked);
+  closeSheets(); switchUser(id);
+}
+var userDelArm=false;
+function mailList(){
+  var u=me();
+  if(!u.email){toast('Agrega tu correo arriba para usar esta opción');return;}
+  if(!buildList(S.scope).length){toast('Planifica tu menú primero');return;}
+  if(FRAMED){copyText(superText()).then(function(){toast('Aquí no se abre el correo, así que copié la lista.');});return;}
+  window.location.href='mailto:'+u.email+'?subject='+encodeURIComponent('Mi lista del súper')+'&body='+encodeURIComponent(superText());
+}
+
+/* ---------- Render: menú ---------- */
+function renderMenu(){
+  var w=S.week,d=S.day;
+  [].forEach.call($('#weekSeg').children,function(b){b.setAttribute('aria-pressed',String(Number(b.dataset.v)===w));});
+  $('#personsOut').textContent=S.persons;
+  if(document.activeElement!==$('#limitIn')) $('#limitIn').value=S.limit;
+  $('#settingsBtn').innerHTML=ic('sliders');
+
+  var h='';
+  for(var i=0;i<7;i++){
+    var t=dayTotal(w,i), st=statusOf(t);
+    h+='<button class="day s-'+st+'" data-act="day" data-v="'+i+'" aria-pressed="'+(i===d)+'" aria-label="Día '+(i+1)+', '+(t?kfmt(t)+' kcal':'sin comidas')+'">'
+      +'<span class="dl">Día</span><span class="dn">'+(i+1)+'</span><span class="dk">'+(t?kfmt(t):'—')+'</span><span class="dot"></span></button>';
+  }
+  $('#strip').innerHTML=h;
+
+  var total=dayTotal(w,d), s=statusOf(total), pct=Math.min(100,total/S.limit*100);
+  var msg={none:'Elige comidas para ver el total del día',ok:'Vas bien · te quedan '+kfmt(S.limit-total)+' kcal',warn:'Cerca de tu límite · te quedan '+kfmt(S.limit-total)+' kcal',over:'Vas '+kfmt(total-S.limit)+' kcal arriba de tu límite'}[s];
+  var box=$('#total'); box.className='day-block total s-'+s;
+  box.innerHTML='<div class="day-top"><div class="eyebrow">Día '+(d+1)+' · Semana '+(w+1)+(S.persons>1?' · '+S.persons+' personas':'')+'</div>'
+    +'<button class="icon-sq flat" data-act="dayActions" aria-label="Acciones del día">'+ic('dots')+'</button></div>'
+    +'<div><span class="big">'+kfmt(total)+'</span><span class="of">de '+kfmt(S.limit)+' kcal por persona</span></div>'
+    +'<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+S.limit+'" aria-valuenow="'+Math.round(total)+'"><i style="width:'+pct+'%"></i></div>'
+    +'<div class="status">'+msg+'</div>';
+
+  var m='';
+  MEALS.forEach(function(meal){
+    var f=food(S.cal[w][d][meal]), ico='<span class="mico">'+ic(MEAL_IC[meal])+'</span>';
+    if(f){
+      m+='<div class="mrow"><button class="mrow-main" data-act="recipe" data-v="'+f.id+'">'+ico+'<span class="mtxt"><span class="eyebrow">'+meal+'</span><span class="mname">'+esc(f.name)+'</span></span></button>'
+        +'<span class="kcal">'+kfmt(f.kcal)+' kcal</span>'
+        +'<button class="icon-sq flat" data-act="mealActions" data-v="'+meal+'" aria-label="Más opciones de '+meal.toLowerCase()+'">'+ic('dots')+'</button></div>';
+    } else {
+      m+='<div class="mrow"><button class="mrow-main" data-act="pick" data-v="'+meal+'">'+ico+'<span class="mtxt"><span class="eyebrow">'+meal+'</span><span class="mname add">Elegir '+meal.toLowerCase()+'</span></span><span class="plus" aria-hidden="true">+</span></button></div>';
+    }
+  });
+  $('#meals').innerHTML=m;
+}
+
+/* ---------- Acciones (hojas de opciones) ---------- */
+function openActions(title,items){
+  $('#actTitle').textContent=title;
+  $('#actBody').innerHTML=items.map(function(i){
+    return '<button class="act-row'+(i.danger?' danger':'')+'" data-act="'+i.act+'" data-v="'+esc(i.v==null?'':i.v)+'" data-close="1">'+ic(i.icon)+'<span>'+i.label+'</span></button>';
+  }).join('');
+  openSheet('sheetActions');
+}
+function dayActions(){
+  openActions('Día '+(S.day+1)+' · Semana '+(S.week+1),[
+    {act:'copyDay',icon:'copy',label:'Copiar este día a otros días'},
+    {act:'copyWeek',icon:'copy',label:'Copiar la semana '+(S.week+1)+' a la semana '+(2-S.week)},
+    {act:'clearDay',icon:'trash',label:'Vaciar este día',danger:1},
+    {act:'clearWeek',icon:'trash',label:'Vaciar la semana '+(S.week+1),danger:1}
+  ]);
+}
+function mealActions(meal){
+  var f=food(S.cal[S.week][S.day][meal]), items=[];
+  if(f) items.push({act:'recipe',v:f.id,icon:'book',label:'Ver receta'});
+  items.push({act:'pick',v:meal,icon:'swap',label:f?'Cambiar '+meal.toLowerCase():'Elegir '+meal.toLowerCase()});
+  if(f) items.push({act:'clear',v:meal,icon:'trash',label:'Quitar',danger:1});
+  openActions(meal+' · Día '+(S.day+1),items);
+}
+function libMore(){
+  openActions('Base de datos',[
+    {act:'importPick',icon:'up',label:'Importar Excel'},
+    {act:'exportDB',icon:'down',label:'Exportar Excel'},
+    {act:'restoreSeed',icon:'refresh',label:'Restaurar platillos iniciales'}
+  ]);
+}
+
+/* ---------- Copiar día ---------- */
+var copySrc=null, copySel={};
+function openCopy(){copySrc={w:S.week,d:S.day};copySel={};renderCopy();openSheet('sheetCopy');}
+function renderCopy(){
+  $('#copyTitle').textContent='Copiar Día '+(copySrc.d+1)+' · Semana '+(copySrc.w+1);
+  var h='';
+  for(var w=0;w<2;w++){
+    h+='<div><div class="cg-h"><span class="eyebrow">Semana '+(w+1)+'</span><button class="link" data-act="copyAll" data-v="'+w+'">Todos</button></div><div class="cg">';
+    for(var d=0;d<7;d++){
+      var key=w+'-'+d, src=(w===copySrc.w&&d===copySrc.d);
+      h+='<button class="chip" data-act="copyToggle" data-v="'+key+'" aria-pressed="'+(!!copySel[key])+'" aria-label="Día '+(d+1)+' de la semana '+(w+1)+(src?' (origen)':'')+'"'+(src?' disabled':'')+'>'+(d+1)+'</button>';
+    }
+    h+='</div></div>';
+  }
+  $('#copyGrid').innerHTML=h;
+  var n=Object.keys(copySel).length, go=$('#copyGo');
+  go.textContent=n?('Copiar a '+n+(n===1?' día':' días')):'Elige los días'; go.disabled=!n;
+}
+function doCopy(){
+  var keys=Object.keys(copySel); if(!keys.length) return;
+  snapshot();
+  keys.forEach(function(k){var a=k.split('-'); S.cal[+a[0]][+a[1]]=clone(S.cal[copySrc.w][copySrc.d]);});
+  save(); closeSheets(); renderMenu(); toastUndo('Día copiado a '+keys.length+(keys.length===1?' día':' días'));
+}
+
+/* ---------- Render: súper ---------- */
+var doneOpen=false;
+function itemRow(i){
+  var on=!!S.checked[i.key];
+  return '<label class="item'+(on?' done':'')+'"><input type="checkbox" data-key="'+esc(i.key)+'"'+(on?' checked':'')+'><span class="box" aria-hidden="true"></span><span class="item-name">'+esc(i.name)+'</span><span class="item-qty">'+esc(qty(i.amt,i.unit))+'</span></label>';
+}
+function renderSuper(){
+  [].forEach.call($('#scopeSeg').children,function(b){b.setAttribute('aria-pressed',String(b.dataset.v===String(S.scope)));});
+  var list=buildList(S.scope), el=$('#superList'), bar=$('#superBar');
+  if(!list.length){
+    bar.innerHTML='';
+    el.innerHTML='<div class="empty">Todavía no hay comidas en el menú.<br>Elige tus comidas en la pestaña Menú y aquí aparece la lista de compras.</div>';
+    return;
+  }
+  var pend=list.filter(function(i){return !S.checked[i.key];}), done=list.filter(function(i){return S.checked[i.key];});
+  bar.innerHTML='<div class="progress"><b>'+done.length+'</b> de '+list.length+' en el carrito</div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+list.length+'" aria-valuenow="'+done.length+'"><i style="width:'+(done.length/list.length*100)+'%"></i></div>';
+  var h='';
+  SUPER_CATS.forEach(function(c){
+    var items=pend.filter(function(i){return i.cat===c.id;}).sort(function(a,b){return a.name.localeCompare(b.name,'es');});
+    if(!items.length) return;
+    h+='<div class="group-h"><h3>'+c.label+'</h3><span>'+items.length+' por comprar</span></div><div class="items">'+items.map(itemRow).join('')+'</div>';
+  });
+  if(!pend.length) h+='<div class="empty">Ya tienes todo en el carrito.</div>';
+  if(done.length){
+    done.sort(function(a,b){return a.name.localeCompare(b.name,'es');});
+    h+='<details class="done-group"'+(doneOpen?' open':'')+'><summary>En el carrito · '+done.length+CHEV+'</summary><div class="items">'+done.map(itemRow).join('')+'</div></details>';
+  }
+  el.innerHTML=h;
+}
+function superText(){
+  var list=buildList(S.scope), t='LISTA DEL SUPERMERCADO\n';
+  SUPER_CATS.forEach(function(c){
+    var items=list.filter(function(i){return i.cat===c.id;}).sort(function(a,b){return a.name.localeCompare(b.name,'es');});
+    if(!items.length) return;
+    t+='\n'+c.label.toUpperCase()+'\n';
+    items.forEach(function(i){t+='  • '+i.name+': '+qty(i.amt,i.unit)+'\n';});
+  });
+  return t;
+}
+
+/* ---------- Render: platillos ---------- */
+var collapsed={};
+function renderLib(){
+  $('#libMoreBtn').innerHTML=ic('dots'); $('#fabBtn').innerHTML=ic('plus');
+  var cats=['Todos'].concat(CATS);
+  $('#libChips').innerHTML=cats.map(function(c){return '<button class="chip" data-act="libcat" data-v="'+c+'" aria-pressed="'+(S.libCat===c)+'">'+(c==='Todos'?'Todos':CAT_LABEL[c])+'</button>';}).join('');
+  var q=norm($('#libSearch').value);
+  var list=S.foods.filter(function(f){return (S.libCat==='Todos'||f.cat===S.libCat)&&norm(f.name).indexOf(q)>-1;});
+  $('#libCount').textContent=list.length+(list.length===1?' platillo':' platillos');
+  if(!list.length){$('#libList').innerHTML='<div class="empty">No hay platillos aquí.<br>Agrega uno nuevo con el botón + o importa tu Excel.</div>';return;}
+  var h='';
+  CATS.forEach(function(c){
+    var items=list.filter(function(f){return f.cat===c;});
+    if(!items.length) return;
+    var open=q||!collapsed[c];
+    h+='<details class="lib-group" data-cat="'+c+'"'+(open?' open':'')+'><summary><span class="dotc" style="--c:'+CAT_COLOR[c]+'"></span><span class="gt">'+CAT_LABEL[c]+'</span><span class="gc">'+items.length+'</span>'+CHEV+'</summary><div class="glist">';
+    items.forEach(function(f){
+      h+='<button class="food" data-act="recipeLib" data-v="'+f.id+'"><div class="food-top"><h3>'+(S.favs[f.id]?ic('star','on fav')+' ':'')+esc(f.name)+'</h3><span class="kcal">'+kfmt(f.kcal)+' kcal</span></div><p>'+ingLine(f,4)+'</p></button>';
+    });
+    h+='</div></details>';
+  });
+  $('#libList').innerHTML=h;
+}
+
+/* ---------- Hojas ---------- */
+function openSheet(id){$('#'+id).hidden=false;document.body.style.overflow='hidden';}
+function closeSheets(){[].forEach.call(document.querySelectorAll('.overlay'),function(o){o.hidden=true;});document.body.style.overflow='';}
+
+/* ---------- Selector inteligente ---------- */
+var pick={w:0,d:0,meal:'Desayuno',all:false,fit:false,sort:'name'};
+function pickBase(){var cur=food(S.cal[pick.w][pick.d][pick.meal]);return dayTotal(pick.w,pick.d)-(cur?cur.kcal:0);}
+function openPicker(meal){
+  pick={w:S.week,d:S.day,meal:meal,all:false,fit:false,sort:'name'};
+  $('#pickTitle').textContent='Elegir '+meal.toLowerCase()+' · Día '+(S.day+1);
+  $('#pickSearch').value=''; renderPick(); openSheet('sheetPick');
+}
+function chipH(act,v,label,on){return '<button class="chip" data-act="'+act+'" data-v="'+v+'" aria-pressed="'+on+'">'+label+'</button>';}
+function pickRow(f,base){
+  var proj=base+f.kcal, cls=proj>=S.limit?'over':(proj>=S.limit*.85?'warn':'ok'), g=cls==='over'?'▲ ':(cls==='warn'?'! ':'');
+  return '<button class="pick-item" data-act="choose" data-v="'+f.id+'"><div><h4>'+(S.favs[f.id]?ic('star','on fav')+' ':'')+esc(f.name)+'</h4><p>'+(pick.all?esc(f.cat)+' · ':'')+ingLine(f,3)+'</p></div>'
+    +'<div class="pk-r"><span class="kcal">'+kfmt(f.kcal)+' kcal</span><span class="proj '+cls+'">'+g+'Día: '+kfmt(proj)+'</span></div></button>';
+}
+function renderPick(){
+  var base=pickBase(), rem=S.limit-base;
+  $('#pickSummary').innerHTML='Llevas <b>'+kfmt(base)+'</b> de '+kfmt(S.limit)+' kcal'+(rem>0?' · te quedan <b>'+kfmt(rem)+'</b>':' · ya estás arriba del límite');
+  $('#pickChips').innerHTML=chipH('pickall','0','Solo '+MEAL_PL[pick.meal],!pick.all)+chipH('pickall','1','Todos',pick.all)+chipH('pickfit','','Caben en mi día',pick.fit);
+  [].forEach.call($('#pickSort').children,function(b){b.setAttribute('aria-pressed',String(b.dataset.v===pick.sort));});
+  var q=norm($('#pickSearch').value), allowed=SLOT_CATS[pick.meal];
+  var list=S.foods.filter(function(f){return (pick.all||allowed.indexOf(f.cat)>-1)&&norm(f.name).indexOf(q)>-1&&(!pick.fit||f.kcal<=rem);});
+  if(!list.length){$('#pickList').innerHTML='<div class="empty">'+(pick.fit?'Ningún platillo cabe en lo que te queda del día.<br>Quita "Caben en mi día" para verlos todos.':'No hay platillos de esta categoría.<br>Prueba con "Todos".')+'</div>';return;}
+  if(pick.sort==='kcal') list.sort(function(a,b){return a.kcal-b.kcal||a.name.localeCompare(b.name,'es');});
+  else list.sort(function(a,b){return a.name.localeCompare(b.name,'es');});
+  var h='';
+  if(!q&&pick.sort==='name'){
+    var favs=list.filter(function(f){return S.favs[f.id];});
+    var rec=S.recent.map(food).filter(function(f){return f&&list.indexOf(f)>-1&&!S.favs[f.id];});
+    var used={}; favs.concat(rec).forEach(function(f){used[f.id]=1;});
+    var rest=list.filter(function(f){return !used[f.id];});
+    if(favs.length) h+='<div class="eyebrow pk-sec">Favoritos</div>'+favs.map(function(f){return pickRow(f,base);}).join('');
+    if(rec.length) h+='<div class="eyebrow pk-sec">Recientes</div>'+rec.map(function(f){return pickRow(f,base);}).join('');
+    if(rest.length) h+=((favs.length||rec.length)?'<div class="eyebrow pk-sec">Todos</div>':'')+rest.map(function(f){return pickRow(f,base);}).join('');
+  } else h=list.map(function(f){return pickRow(f,base);}).join('');
+  $('#pickList').innerHTML=h;
+}
+
+/* ---------- Receta ---------- */
+var recCtx={id:0,lib:false};
+function openRecipe(id,lib){recCtx={id:id,lib:lib};renderRecipe();openSheet('sheetRecipe');}
+function renderRecipe(){
+  var f=food(recCtx.id); if(!f) return;
+  $('#recTitle').textContent=f.name;
+  var fav=!!S.favs[f.id];
+  var h='<div><span class="kcal">'+kfmt(f.kcal)+' kcal por porción</span> <span class="badge" style="margin-left:6px">'+esc(f.cat)+'</span></div>'
+    +'<div><div class="eyebrow">Ingredientes para '+S.persons+(S.persons===1?' persona':' personas')+'</div><ul class="ing-list">'
+    +(f.ings.length?f.ings.map(function(i){return '<li><span>'+esc(i.name)+'</span><span>'+esc(qty((i.amt||0)*S.persons,i.unit))+'</span></li>';}).join(''):'<li><span>Sin ingredientes registrados</span><span></span></li>')
+    +'</ul></div><div><div class="eyebrow" style="margin-bottom:6px">Preparación</div><div class="prep">'+esc(f.prep||'Sin descripción.')+'</div></div>'
+    +'<div class="btn-row"><button class="btn" data-act="editFood">'+ic('edit')+'Editar</button><button class="btn" data-act="fav">'+ic('star',fav?'on':'')+(fav?'Quitar favorito':'Favorito')+'</button></div>';
+  if(recCtx.lib) h+='<button class="btn danger block" data-act="delFood" data-v="'+f.id+'">Eliminar platillo</button>';
+  $('#recBody').innerHTML=h;
+}
+
+/* ---------- Formulario (nuevo / editar) ---------- */
+var ingN=0, editId=null;
+function unitOpts(){return '<option value="">Unidad</option>'+UNITS.map(function(u){return '<option value="'+u+'">'+u+'</option>';}).join('');}
+function addIngRow(ing){
+  var rows=$('#ingRows');
+  if(rows.children.length>=8){toast('Máximo 8 ingredientes');return;}
+  var n=ingN++, div=document.createElement('div'); div.className='ing-row';
+  div.innerHTML='<input class="name ing-name" id="in-n-'+n+'" placeholder="Ingrediente" aria-label="Ingrediente" autocomplete="off">'
+    +'<input class="ing-amt" id="in-a-'+n+'" type="number" inputmode="decimal" step="any" min="0" placeholder="Cantidad" aria-label="Cantidad">'
+    +'<select class="ing-unit" id="in-u-'+n+'" aria-label="Unidad">'+unitOpts()+'</select>';
+  rows.appendChild(div);
+  if(ing){
+    div.querySelector('.ing-name').value=ing.name||'';
+    div.querySelector('.ing-amt').value=ing.amt||'';
+    var sel=div.querySelector('.ing-unit');
+    if(ing.unit&&UNITS.indexOf(ing.unit)<0){var o=document.createElement('option');o.value=o.textContent=ing.unit;sel.appendChild(o);}
+    sel.value=ing.unit||'';
+  }
+}
+function openForm(id){
+  editId=id||null;
+  var f=editId?food(editId):null;
+  $('#formTitle').textContent=f?'Editar platillo':'Nuevo platillo';
+  $('#saveFoodBtn').textContent=f?'Guardar cambios':'Guardar platillo';
+  $('#fNombre').value=f?f.name:''; $('#fKcal').value=f?f.kcal:''; $('#fPrep').value=f?(f.prep||''):''; $('#formMsg').textContent='';
+  $('#fCat').innerHTML=CATS.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
+  if(f) $('#fCat').value=f.cat;
+  $('#ingRows').innerHTML=''; ingN=0;
+  var ings=f?f.ings.slice(0,8):[]; ings.forEach(function(i){addIngRow(i);});
+  while($('#ingRows').children.length<4) addIngRow();
+  openSheet('sheetForm');
+}
+function saveFood(){
+  var name=$('#fNombre').value.trim(), msg=$('#formMsg');
+  if(!name){msg.textContent='Escribe el nombre del platillo.';$('#fNombre').focus();return;}
+  var ings=[];
+  [].forEach.call(document.querySelectorAll('#ingRows .ing-row'),function(r){
+    var n=r.querySelector('.ing-name').value.trim(); if(!n) return;
+    ings.push({name:n,amt:parseFloat(r.querySelector('.ing-amt').value)||0,unit:r.querySelector('.ing-unit').value});
+  });
+  var data={name:name,cat:$('#fCat').value,kcal:parseFloat($('#fKcal').value)||0,ings:ings,prep:$('#fPrep').value.trim()};
+  var f=editId?food(editId):null;
+  if(f){ for(var k in data) f[k]=data[k]; toast('Cambios guardados'); }
+  else { data.id=nextId(); S.foods.push(data); toast('Platillo guardado'); }
+  save(); closeSheets(); refreshAll();
+}
+
+/* ---------- Menú de las 2 semanas ---------- */
+function renderFridge(){
+  var h='<p class="fr-note">'+S.persons+(S.persons===1?' persona':' personas')+' · límite '+kfmt(S.limit)+' kcal por persona · '+new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})+'</p>';
+  h+='<p class="fr-note no-print">'+(FRAMED?'Aquí no se puede imprimir. Toma una captura de pantalla, o abre el archivo instalado para guardar el PDF.':'Desliza la tabla para ver todos los días.')+'</p>';
+  for(var w=0;w<2;w++){
+    h+='<div class="fr-block"><h3 class="fr-week">Semana '+(w+1)+'</h3><div class="fr-scroll"><table class="fr-table"><thead><tr><th></th>'+DAYS.map(function(d){return '<th>'+d+'</th>';}).join('')+'</tr></thead><tbody>';
+    MEALS.forEach(function(m){
+      h+='<tr><td class="m">'+m+'</td>';
+      for(var d=0;d<7;d++){var f=food(S.cal[w][d][m]);h+='<td>'+(f?esc(f.name)+'<small>'+kfmt(f.kcal)+' kcal</small>':'')+'</td>';}
+      h+='</tr>';
+    });
+    h+='<tr><td class="m">Total</td>';
+    for(var d2=0;d2<7;d2++){var t=dayTotal(w,d2);h+='<td><b>'+(t?kfmt(t)+' kcal':'—')+'</b></td>';}
+    h+='</tr></tbody></table></div></div>';
+  }
+  if(!FRAMED) h+='<button class="btn primary block no-print" data-act="printFridge">Guardar como PDF</button>';
+  $('#frBody').innerHTML=h;
+}
+
+/* ---------- Excel ---------- */
+function slug(s){return norm(s||'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')||'base';}
+function buildDBWorkbook(){
+  var header=['ID','Nombre','Categoría','Calorías (kcal)'];
+  for(var i=1;i<=8;i++) header.push('Ingrediente'+i,'Cantidad'+i,'Unidad'+i);
+  header.push('Preparación');
+  var rows=[header];
+  S.foods.forEach(function(f,i){
+    var row=[i+1,f.name,f.cat,f.kcal];
+    for(var j=0;j<8;j++){var g=f.ings[j];row.push(g?g.name:'',g?g.amt:'',g?g.unit:'');}
+    row.push(f.prep||''); rows.push(row);
+  });
+  var ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'BaseDatos');
+  return wb;
+}
+function dbReady(){
+  if(FRAMED){toast('Aquí no se pueden descargar archivos. Funciona en la versión instalada.');return false;}
+  if(typeof XLSX==='undefined'){toast('No se pudo cargar el módulo de Excel. Revisa tu conexión.');return false;}
+  if(!S.foods.length){toast('No hay platillos para exportar');return false;}
+  return true;
+}
+function exportDB(){
+  if(!dbReady()) return;
+  try{XLSX.writeFile(buildDBWorkbook(),'dieta_'+slug(me().name)+'.xlsx');}catch(err){toast('Error al exportar: '+err.message);}
+}
+function shareDB(){
+  if(!dbReady()) return;
+  var fname='dieta_'+slug(me().name)+'.xlsx';
+  try{
+    var wb=buildDBWorkbook();
+    var arr=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    var file=new File([arr],fname,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'Mi base de datos de dietas'}).catch(function(){});
+    } else { XLSX.writeFile(wb,fname); toast('Se descargó el archivo '+fname); }
+  }catch(err){toast('Error al compartir: '+err.message);}
+}
+function exportSuper(){
+  var list=buildList(S.scope);
+  if(!list.length){toast('Planifica tu menú primero');return;}
+  if(FRAMED){copyText(superText()).then(function(){toast('Aquí no se descargan archivos, así que copié la lista.');});return;}
+  if(typeof XLSX==='undefined'){toast('No se pudo cargar el módulo de Excel. Revisa tu conexión.');return;}
+  try{
+    var rows=[['Categoría','Ingrediente','Cantidad','Unidad']];
+    SUPER_CATS.forEach(function(c){list.filter(function(i){return i.cat===c.id;}).sort(function(a,b){return a.name.localeCompare(b.name,'es');}).forEach(function(i){rows.push([c.label,i.name,round2(i.amt),i.unit]);});});
+    var ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:24},{wch:30},{wch:12},{wch:12}];
+    var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Lista del Super');
+    XLSX.writeFile(wb,'lista_supermercado.xlsx');
+  }catch(err){toast('Error al exportar: '+err.message);}
+}
+function importExcel(file){
+  if(!file) return;
+  if(typeof XLSX==='undefined'){toast('No se pudo cargar el módulo de Excel. Revisa tu conexión.');return;}
+  var rd=new FileReader();
+  rd.onload=function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'array'}), ws=wb.Sheets['BaseDatos'];
+      if(!ws){toast('No se encontró la hoja "BaseDatos".');return;}
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''}), added=0;
+      var seen={}; S.foods.forEach(function(f){seen[norm(f.name)+'|'+f.cat]=1;});
+      for(var i=1;i<rows.length;i++){
+        var r=rows[i]; if(!r[1]) continue;
+        var cat=String(r[2]||'Comida'); if(CATS.indexOf(cat)<0) cat='Comida';
+        var key=norm(String(r[1]))+'|'+cat; if(seen[key]) continue; seen[key]=1;
+        var ings=[]; for(var j=4;j<=25;j+=3) if(r[j]) ings.push({name:String(r[j]),amt:parseFloat(r[j+1])||0,unit:String(r[j+2]||'')});
+        S.foods.push({id:nextId(),name:String(r[1]),cat:cat,kcal:parseFloat(r[3])||0,ings:ings,prep:String(r[28]||'')}); added++;
+      }
+      save(); refreshAll(); toast(added?added+' platillos importados':'No había platillos nuevos en el archivo');
+    }catch(err){toast('Error al importar: '+err.message);}
+  };
+  rd.readAsArrayBuffer(file);
+}
+
+/* ---------- Navegación ---------- */
+function setTab(t){
+  S.tab=t; save();
+  TABS.forEach(function(x){$('#tab-'+x).hidden=(x!==t);});
+  [].forEach.call(document.querySelectorAll('.nav button'),function(b){if(b.dataset.v===t)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+  if(t==='menu')renderMenu(); if(t==='super')renderSuper(); if(t==='lib')renderLib(); if(t==='perfil')renderPerfil();
+  window.scrollTo(0,0);
+}
+
+/* ---------- Eventos ---------- */
+document.addEventListener('click',function(e){
+  if(e.target.classList&&e.target.classList.contains('overlay')){closeSheets();return;}
+  var el=e.target.closest('[data-act]'); if(!el) return;
+  var a=el.dataset.act, v=el.dataset.v;
+  if(el.dataset.close) closeSheets();
+  switch(a){
+    case 'tab': setTab(v); break;
+    case 'week': S.week=Number(v); save(); renderMenu(); break;
+    case 'day': S.day=Number(v); save(); renderMenu(); break;
+    case 'persons': S.persons=Math.min(8,Math.max(1,S.persons+Number(v))); save(); renderMenu(); break;
+    case 'settings': openSheet('sheetSettings'); break;
+    case 'dayActions': dayActions(); break;
+    case 'mealActions': mealActions(v); break;
+    case 'libMore': libMore(); break;
+    case 'pick': openPicker(v); break;
+    case 'pickall': pick.all=(v==='1'); renderPick(); break;
+    case 'pickfit': pick.fit=!pick.fit; renderPick(); break;
+    case 'picksort': pick.sort=v; renderPick(); break;
+    case 'choose':
+      var id=Number(v); S.cal[pick.w][pick.d][pick.meal]=id;
+      S.recent=[id].concat(S.recent.filter(function(x){return x!==id;})).slice(0,8);
+      save(); closeSheets(); renderMenu(); break;
+    case 'clear': snapshot(); S.cal[S.week][S.day][v]=null; save(); renderMenu(); toastUndo('Quitaste '+v.toLowerCase()); break;
+    case 'clearDay': snapshot(); MEALS.forEach(function(m){S.cal[S.week][S.day][m]=null;}); save(); renderMenu(); toastUndo('Día '+(S.day+1)+' vacío'); break;
+    case 'clearWeek': snapshot(); S.cal[S.week]=blankCal()[0]; save(); renderMenu(); toastUndo('Semana '+(S.week+1)+' vacía'); break;
+    case 'copyWeek': snapshot(); S.cal[1-S.week]=clone(S.cal[S.week]); save(); renderMenu(); toastUndo('Semana '+(S.week+1)+' copiada a la semana '+(2-S.week)); break;
+    case 'copyDay': openCopy(); break;
+    case 'copyToggle': if(copySel[v]) delete copySel[v]; else copySel[v]=1; renderCopy(); break;
+    case 'copyAll':
+      var wk=Number(v), keys=[]; for(var d=0;d<7;d++){ if(!(wk===copySrc.w&&d===copySrc.d)) keys.push(wk+'-'+d); }
+      var allOn=keys.every(function(k){return copySel[k];});
+      keys.forEach(function(k){ if(allOn) delete copySel[k]; else copySel[k]=1; }); renderCopy(); break;
+    case 'doCopy': doCopy(); break;
+    case 'recipe': openRecipe(Number(v),false); break;
+    case 'recipeLib': openRecipe(Number(v),true); break;
+    case 'editFood': closeSheets(); openForm(recCtx.id); break;
+    case 'fav':
+      if(S.favs[recCtx.id]) delete S.favs[recCtx.id]; else S.favs[recCtx.id]=1;
+      save(); renderRecipe(); if(S.tab==='lib') renderLib(); break;
+    case 'fridge': renderFridge(); openSheet('sheetFridge'); break;
+    case 'printFridge': window.print(); break;
+    case 'close': closeSheets(); break;
+    case 'scope': S.scope=v; save(); renderSuper(); break;
+    case 'uncheck': S.checked={}; save(); renderSuper(); break;
+    case 'copySuper':
+      if(!buildList(S.scope).length){toast('Planifica tu menú primero');break;}
+      copyText(superText()).then(function(ok){toast(ok?'Lista copiada':'No se pudo copiar. Mantén presionada la lista para seleccionarla.');}); break;
+    case 'exportSuper': exportSuper(); break;
+    case 'libcat': S.libCat=v; save(); renderLib(); break;
+    case 'newFood': openForm(null); break;
+    case 'addIng': addIngRow(); break;
+    case 'saveFood': saveFood(); break;
+    case 'exportDB': exportDB(); break;
+    case 'importPick': $('#fileIn').click(); break;
+    case 'delFood':
+      snapshot(); var gid=Number(v); S.foods=S.foods.filter(function(f){return f.id!==gid;});
+      for(var w=0;w<2;w++)for(var dd=0;dd<7;dd++)MEALS.forEach(function(m){if(S.cal[w][dd][m]===gid)S.cal[w][dd][m]=null;});
+      delete S.favs[gid]; S.recent=S.recent.filter(function(x){return x!==gid;});
+      save(); closeSheets(); refreshAll(); toastUndo('Platillo eliminado'); break;
+    case 'undo':
+      if(undoSnap&&undoSnap.uid===ROOT.active){
+        S.cal=undoSnap.cal; S.foods=undoSnap.foods; S.favs=undoSnap.favs; S.recent=undoSnap.recent; undoSnap=null;
+        save(); refreshAll(); toast('Listo, se deshizo');
+      } else { $('#toast').hidden=true; }
+      break;
+    case 'restoreSeed':
+      var have={}; S.foods.forEach(function(f){have[norm(f.name)+'|'+f.cat]=1;}); var n=0;
+      SEED.forEach(function(f){if(!have[norm(f.name)+'|'+f.cat]){var c=clone(f);c.id=nextId();S.foods.push(c);n++;}});
+      save(); refreshAll(); toast(n?n+' platillos iniciales restaurados':'Ya tienes todos los platillos iniciales'); break;
+    case 'theme': ROOT.theme=(v==='auto'?'':v); save(); applyTheme(); renderTheme(); break;
+    case 'rmPhoto': me().photo=''; save(); renderPerfil(); renderHeader(); break;
+    case 'switchUser': switchUser(v); break;
+    case 'addUser': $('#nuName').value=''; $('#nuSeed').checked=true; openSheet('sheetUser'); break;
+    case 'createUser': createUser(); break;
+    case 'shareDB': shareDB(); break;
+    case 'mailList': mailList(); break;
+    case 'delUser':
+      if(!userDelArm){userDelArm=true;el.textContent='Toca otra vez para eliminar a '+(me().name||'esta persona');setTimeout(function(){userDelArm=false;el.textContent='Eliminar esta persona';},4000);}
+      else{
+        var gone=ROOT.active; ROOT.users=ROOT.users.filter(function(u){return u.id!==gone;}); delete ROOT.data[gone];
+        ROOT.active=ROOT.users[0].id; S=ROOT.data[ROOT.active]; S.tab='perfil'; userDelArm=false; undoSnap=null; save(); renderHeader(); setTab('perfil'); toast('Persona eliminada');
+      }
+      break;
+  }
+});
+document.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.id==='limitIn'){var v=parseInt(t.value,10); if(v>=500){S.limit=v;save();}else{t.value=S.limit;toast('El límite mínimo es 500 kcal');} renderMenu();}
+  else if(t.id==='photoIn'){processPhoto(t.files[0]);t.value='';}
+  else if(t.id==='fileIn'){importExcel(t.files[0]);t.value='';}
+  else if(t.matches&&t.matches('.item input')){var k=t.dataset.key; if(t.checked)S.checked[k]=1; else delete S.checked[k]; save(); renderSuper();}
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='pickSearch')renderPick();
+  else if(e.target.id==='libSearch')renderLib();
+  else if(e.target.id==='pName'){me().name=e.target.value; save(); renderHeader(); renderUsers();}
+  else if(e.target.id==='pEmail'){me().email=e.target.value.trim(); save();}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheets();});
+document.addEventListener('toggle',function(e){
+  var d=e.target; if(!d.classList) return;
+  if(d.classList.contains('lib-group')) collapsed[d.dataset.cat]=!d.open;
+  else if(d.classList.contains('done-group')) doneOpen=d.open;
+},true);
+
+applyTheme();
+renderHeader();
+setTab(S.tab||'menu');
+})();
+</script>
+<script>
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});
+}
+</script>
+</body>
+</html>
