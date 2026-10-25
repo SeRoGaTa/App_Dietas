@@ -2,7 +2,7 @@
    Guarda la app en el teléfono para que abra sin internet.
    Estrategia: responde al instante con lo guardado y actualiza en segundo plano
    (los cambios nuevos aparecen la siguiente vez que abres la app). */
-const VERSION = 'v3';
+const VERSION = 'v7';
 const CACHE = 'dieta-' + VERSION;
 const ASSETS = [
   "./",

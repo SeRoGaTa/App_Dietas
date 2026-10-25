@@ -34,6 +34,7 @@
   --box:#cdb491; --cool-bg:#e2edf8; --cool-fg:#2f5f8f; --glow:200,24,90;
   --scrim:rgba(45,20,10,.5);
   --shadow:0 1px 2px rgba(90,45,10,.06),0 8px 24px rgba(120,60,10,.09);
+  --col:560px;
   --font-body:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
 @media (prefers-color-scheme: dark){
@@ -67,7 +68,7 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
 .ic{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ic.on{fill:currentColor}
 
-.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(96px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:var(--col);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(96px + env(safe-area-inset-bottom,0px))}
 .app-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .app-head h1{font-weight:800;font-size:24px;line-height:1.15;letter-spacing:-.03em;text-wrap:balance}
 .app-head .hello{font-size:13px;font-weight:600;color:var(--accent);margin:0 0 2px}
@@ -199,17 +200,55 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
 .badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
 .empty{text-align:center;color:var(--muted);padding:28px 12px}
 .credit{text-align:center;color:var(--muted);font-size:12px;margin-top:18px;line-height:1.6}
-.fab{position:fixed;z-index:30;right:max(16px,calc((100vw - 560px) / 2 + 16px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 10px 24px rgba(var(--glow),.4)}
+.fab{position:fixed;z-index:30;right:max(16px,calc((100vw - var(--col)) / 2 + 16px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 10px 24px rgba(var(--glow),.4)}
 .fab .ic{width:26px;height:26px;stroke-width:2.2}
 
 /* hojas */
 .overlay{position:fixed;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
-.sheet{width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--surface);border-radius:26px 26px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);animation:up .22s ease-out}
+.sheet{width:100%;max-width:var(--col);max-height:92vh;display:flex;flex-direction:column;background:var(--surface);border-radius:26px 26px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);animation:up .22s ease-out}
 @supports (height:1dvh){.sheet{max-height:92dvh}}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 8px 4px max(18px,env(safe-area-inset-left,0px))}
 .sheet-head h2{font-weight:800;font-size:21px;line-height:1.2;letter-spacing:-.025em;overflow-wrap:anywhere}
 .sheet-body{overflow-y:auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;overscroll-behavior:contain}
 .sheet.full{max-width:none;height:100%;max-height:none;border-radius:0}
+.sheet.full .sheet-body{flex:1;min-height:0}
+.sug{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.sug + .sug{margin-top:10px}
+.sug-main{display:block;width:100%;text-align:left;padding:14px 16px 6px}
+.sug-t{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.sug-t h4{font-size:15.5px;font-weight:700;line-height:1.3;letter-spacing:-.01em;overflow-wrap:anywhere}
+.sug-m{margin-top:6px;font-size:13px;font-weight:600;color:var(--muted);overflow-wrap:anywhere}
+.sug-m.ok{color:var(--ok)} .sug-m.warn{color:var(--warn)}
+.sug-a{padding:2px 12px 12px;display:flex;justify-content:flex-end}
+.stock-top{flex:none;padding:6px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+.stock-top .chips{gap:5px}
+.stock-top .chip{min-height:38px;padding:0 9px;font-size:13px}
+#stockChips .chip[aria-pressed="true"]{background:var(--ok-bg);color:var(--ok);border-color:var(--ok);font-weight:700}
+.stock-h{display:flex;justify-content:space-between;align-items:baseline;padding:14px 2px 8px}
+.stock-h h3{font-weight:800;font-size:17px;letter-spacing:-.02em}
+.stock-h span{font-size:12px;color:var(--muted);font-weight:600}
+.tm{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
+.tm .ic{width:13px;height:13px;stroke-width:2}
+.food p .tm,.pick-item p .tm{vertical-align:-2px}
+.sug-i{margin-top:4px}
+.vary{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--warn-bg);color:var(--warn);font-size:13.5px;font-weight:600}
+.vary span{flex:1;min-width:0}
+.tip{display:flex;align-items:center;gap:10px;margin:14px 0 0;padding:10px 12px;border-radius:14px;background:var(--surface-2);color:var(--muted);font-size:13.5px;font-weight:600}
+.tip span{flex:1;min-width:0}
+.tip .link{min-height:36px;padding:0 8px;flex:none}
+.vary .link{min-height:36px;padding:0 8px;color:var(--warn);text-decoration:underline}
+.pin{display:inline-flex;vertical-align:-3px;margin-left:6px;color:var(--accent)}
+.pin .ic{width:15px;height:15px;stroke-width:2}
+#disChips .chip[aria-pressed="true"]{background:var(--over-bg);color:var(--over);border-color:var(--over);font-weight:700}
+.ord-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 4px;border-top:1px solid var(--line)}
+.ord-row:first-child{border-top:0}
+.ord-row b{font-weight:700}
+.ord-btns{display:flex;gap:8px}
+.item .item-qty{border:0;font-family:inherit;cursor:pointer}
+.opt-h{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:2px 2px 8px}
+.item-name small{display:block;margin-top:1px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.item.have{cursor:default}
+.item.have .item-name{font-weight:600;color:var(--muted)}
 .acts{display:flex;flex-direction:column}
 .act-row{display:flex;align-items:center;gap:14px;width:100%;min-height:58px;padding:0 4px;font-weight:600;font-size:16px;text-align:left;border-top:1px solid var(--line)}
 .act-row:first-child{border-top:0}
@@ -270,14 +309,15 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
 
 /* barra inferior y aviso */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(120,60,10,.08);padding-bottom:env(safe-area-inset-bottom,0px)}
-.nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:0 max(16px,env(safe-area-inset-left,0px))}
+.nav-in{max-width:var(--col);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:0 max(16px,env(safe-area-inset-left,0px))}
 .nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;font-size:12px;font-weight:600;color:var(--muted)}
 .nav button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav button[aria-current="page"]{color:var(--accent)}
 .nav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:28%;right:28%;height:3px;border-radius:0 0 4px 4px;background:var(--accent)}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:80;display:flex;align-items:center;gap:14px;max-width:min(520px,calc(100% - 32px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.toast{width:max-content;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:80;display:flex;align-items:center;gap:14px;max-width:min(520px,calc(100% - 32px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
 .toast button{color:var(--accent-soft);font-weight:800;min-height:36px;padding:0 6px;border-radius:8px}
 @keyframes up{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:768px){:root{--col:720px}.sheet:not(.full){max-width:640px;border-radius:26px;margin-bottom:5vh}.overlay{align-items:center}.sheet:not(.full){max-height:88vh}}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}.chev{transition:none!important}}
 
 @media print{
@@ -321,6 +361,8 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
     <div class="strip" id="strip"></div>
     <div class="day-block total" id="total"></div>
     <div class="card list" id="meals"></div>
+    <button class="btn primary block" data-act="surp" id="surpBtn"></button>
+    <button class="btn block" data-act="stock" id="stockBtn"></button>
     <button class="btn block" data-act="fridge">Ver menú de las 2 semanas</button>
   </section>
 
@@ -337,6 +379,8 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
       <button class="btn primary" data-act="copySuper">Copiar lista</button>
       <button class="btn" data-act="exportSuper">Exportar Excel</button>
       <button class="btn" data-act="uncheck">Desmarcar todo</button>
+      <button class="btn" data-act="shareSuper">Compartir lista</button>
+      <button class="btn" data-act="order">Orden de secciones</button>
     </div>
   </section>
 
@@ -348,6 +392,7 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
     </div>
     <input id="fileIn" class="vh" type="file" accept=".xlsx" tabindex="-1" aria-hidden="true">
     <div class="chips" id="libChips"></div>
+    <div class="chips" id="libChips2"></div>
     <p class="progress" id="libCount"></p>
     <div class="stack" id="libList"></div>
     <p class="credit">Tus platillos se guardan en este teléfono. Haz un respaldo en Excel de vez en cuando.</p>
@@ -379,6 +424,12 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
         <button data-act="theme" data-v="dark">Oscuro</button>
       </div>
       <p class="note">Automático usa la configuración de tu teléfono y cambia solo cuando tu teléfono pasa de modo claro a oscuro.</p>
+    </div>
+
+    <h3 class="sec-h">Mis preferencias</h3>
+    <div class="card stack">
+      <button class="btn block" data-act="dis" id="disBtn"></button>
+      <p class="note">Los platillos con estos ingredientes no aparecen en el selector, en las sugerencias del refri ni en Sorpréndeme. Siguen en tu lista de Platillos.</p>
     </div>
 
     <h3 class="sec-h">Personas en este teléfono</h3>
@@ -456,6 +507,27 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
 </div>
 
 <!-- Elegir platillo -->
+<!-- Mi refri: qué tengo y qué puedo cocinar -->
+<div class="overlay" id="sheetStock" hidden>
+  <div class="sheet full" role="dialog" aria-modal="true" aria-labelledby="stockTitle">
+    <div class="sheet-head"><h2 id="stockTitle">Mi refri</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="stock-top"><div class="seg" id="stockSeg" role="group" aria-label="Vista"></div><div class="chips" id="stockFilters" style="margin-top:10px"></div></div>
+    <div class="sheet-body">
+      <div id="stockHave" class="stack">
+        <p class="note">Marca lo que tienes hoy en casa. Sal, pimienta, canela y aceite se dan por hechos. Lo que marques aquí ya no aparece como pendiente en tu lista del Súper.</p>
+        <input class="search" id="stockSearch" type="search" placeholder="Buscar ingrediente" aria-label="Buscar ingrediente" autocomplete="off">
+        <p class="progress" id="stockCount"></p>
+        <div id="stockChips"></div>
+        <button class="btn primary block" data-act="stockTab" data-v="cook">Ver qué puedo cocinar</button>
+        <button class="link danger" data-act="stockClear">Vaciar mi refri</button>
+      </div>
+      <div id="stockCook" class="stack" hidden>
+        <div id="stockList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="sheetPick" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
     <div class="sheet-head"><h2 id="pickTitle">Elegir</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
@@ -481,6 +553,62 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
 </div>
 
 <!-- Nuevo / editar platillo -->
+<!-- Poner un platillo en el menú -->
+<div class="overlay" id="sheetPut" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="putTitle">
+    <div class="sheet-head"><h2 id="putTitle">Poner en mi menú</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body" id="putBody"></div>
+  </div>
+</div>
+
+<!-- Sorpréndeme -->
+<div class="overlay" id="sheetSurp" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="surpTitle">
+    <div class="sheet-head"><h2 id="surpTitle">Sorpréndeme</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body" id="surpBody"></div>
+  </div>
+</div>
+
+<!-- Ingredientes que no como -->
+<div class="overlay" id="sheetDis" hidden>
+  <div class="sheet full" role="dialog" aria-modal="true" aria-labelledby="disTitle">
+    <div class="sheet-head"><h2 id="disTitle">Ingredientes que no como</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <p class="note">Toca los ingredientes que no quieres ver. Los platillos que los llevan se ocultan en el selector, en las sugerencias y en Sorpréndeme.</p>
+      <input class="search" id="disSearch" type="search" placeholder="Buscar ingrediente" aria-label="Buscar ingrediente" autocomplete="off">
+      <p class="progress" id="disCount"></p>
+      <div id="disChips"></div>
+      <button class="btn primary block" data-act="close">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Orden de secciones del súper -->
+<div class="overlay" id="sheetOrder" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ordTitle">
+    <div class="sheet-head"><h2 id="ordTitle">Orden de secciones</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <p class="note">Ordena las secciones como recorres tu súper. La lista, la que copias y el Excel siguen este orden.</p>
+      <div class="acts" id="ordBody"></div>
+      <button class="btn primary block" data-act="close">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Editar cantidad -->
+<div class="overlay" id="sheetQty" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="qtyTitle">
+    <div class="sheet-head"><h2 id="qtyTitle">Cantidad</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
+    <div class="sheet-body">
+      <p class="note" id="qtyNote"></p>
+      <div class="field"><label for="qtyIn" id="qtyLbl">Necesito</label><input id="qtyIn" type="number" inputmode="decimal" min="0" step="any"></div>
+      <div class="field"><label for="haveIn" id="haveLbl">Tengo en casa</label><input id="haveIn" type="number" inputmode="decimal" min="0" step="any" placeholder="Déjalo vacío si no sabes"></div>
+      <button class="btn primary block" data-act="qtySave">Guardar</button>
+      <button class="btn block" data-act="qtyReset" id="qtyResetBtn">Volver al cálculo automático</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="sheetForm" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="formTitle">
     <div class="sheet-head"><h2 id="formTitle">Nuevo platillo</h2><button class="icon-btn" data-act="close" aria-label="Cerrar">×</button></div>
@@ -489,6 +617,10 @@ html::before{content:"";position:fixed;left:0;right:0;top:env(safe-area-inset-to
       <div class="settings">
         <div class="field"><label for="fCat">Categoría</label><select id="fCat"></select></div>
         <div class="field"><label for="fKcal">Kcal por porción</label><input id="fKcal" type="number" inputmode="decimal" min="0" placeholder="350"></div>
+      </div>
+      <div class="settings">
+        <div class="field"><label for="fMins">Minutos para prepararlo</label><input id="fMins" type="number" inputmode="numeric" min="0" placeholder="15"></div>
+        <div class="field"><label for="fDiff">Dificultad</label><select id="fDiff"><option value="">—</option><option>Fácil</option><option>Medio</option><option>Elaborado</option></select></div>
       </div>
       <div class="field"><span class="lbl">Ingredientes por porción (hasta 8)</span><div class="stack" id="ingRows"></div></div>
       <button class="btn" data-act="addIng" id="addIngBtn">Añadir ingrediente</button>
@@ -529,7 +661,7 @@ var CATS=['Desayuno','Comida','Snack','Cena','Desayuno/Cena'];
 var CAT_COLOR={'Desayuno':'#f2a20c','Comida':'#d9472b','Snack':'#8a5cc7','Cena':'#2a62c4','Desayuno/Cena':'#3c9a4b'};
 var CAT_LABEL={'Desayuno':'Desayunos','Comida':'Comidas','Snack':'Snacks','Cena':'Cenas','Desayuno/Cena':'Desayuno o cena'};
 var UNITS=['g','kg','ml','l','tsp','tbsp','taza','pieza','rebanada','diente','pizca','al gusto','lata','sobre','loncha','barra','cucharada','cucharadita','hoja','rama'];
-var SEED=[{"name": "Huevos con jamón de pavo y espinaca", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamón de pavo", "amt": 2.0, "unit": "rebanada"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}, {"name": "Aceite en spray", "amt": 1.0, "unit": "pizca"}], "prep": "Sofreír la espinaba con un toque de aceite en spray, agregar el jamón de pavo picado y los huevos. Revolver a fuego medio hasta cuajar.", "id": 1}, {"name": "Yogurt griego con nueces y fruta", "cat": "Desayuno", "kcal": 320.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Manzana", "amt": 0.5, "unit": "pieza"}], "prep": "Servir el yogurt en un tazón, agregar la nuez picada y la manzana en cubos.", "id": 2}, {"name": "Sandwich integral de pavo", "cat": "Desayuno/Cena", "kcal": 300.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Jamón de pavo", "amt": 2.0, "unit": "rebanada"}, {"name": "Queso panela", "amt": 1.0, "unit": "rebanada"}, {"name": "Aguacate", "amt": 0.25, "unit": "pieza"}, {"name": "Lechuga", "amt": 1.0, "unit": "hoja"}, {"name": "Jitomate", "amt": 2.0, "unit": "rebanada"}], "prep": "Armar el sándwich colocando jamón, queso, aguacate, lechuga y jitomate entre las rebanadas de pan integral.", "id": 3}, {"name": "Omelette de claras con queso panela", "cat": "Desayuno", "kcal": 170.0, "ings": [{"name": "Clara de huevo", "amt": 4.0, "unit": "pieza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Batir las claras, verter en sartén antiadherente, agregar el queso panela y doblar al cuajar.", "id": 4}, {"name": "Huevos a la mexicana", "cat": "Desayuno", "kcal": 170.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Chile", "amt": 1.0, "unit": "al gusto"}], "prep": "Sofreír jitomate, cebolla y chile picados, agregar los huevos batidos y cocinar revolviendo.", "id": 5}, {"name": "Mollete integral", "cat": "Desayuno", "kcal": 350.0, "ings": [{"name": "Bolillo integral", "amt": 1.0, "unit": "pieza"}, {"name": "Frijoles refritos", "amt": 4.0, "unit": "cucharada"}, {"name": "Queso panela", "amt": 30.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Partir el bolillo a la mitad y retirar el migajón. Untar frijoles refritos, agregar queso panela y gratinar en sartén u horno. Servir con pico de gallo (jitomate y cebolla picados).", "id": 6}, {"name": "Avena con leche y fruta", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Avena", "amt": 0.5, "unit": "taza"}, {"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Canela", "amt": 1.0, "unit": "pizca"}, {"name": "Manzana o plátano", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la avena con la leche a fuego medio. Agregar canela y la fruta en trozos al servir.", "id": 7}, {"name": "Chilaquiles horneados", "cat": "Desayuno", "kcal": 310.0, "ings": [{"name": "Tortilla de maíz", "amt": 4.0, "unit": "pieza"}, {"name": "Salsa verde o roja", "amt": 0.5, "unit": "taza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Cortar las tortillas en triángulos y hornear 10 min. Bañar con salsa, agregar queso y hornear 5 min más.", "id": 8}, {"name": "Hotcakes de avena", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Avena", "amt": 0.5, "unit": "taza"}, {"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Canela", "amt": 1.0, "unit": "pizca"}], "prep": "Licuar la avena con el huevo y la canela hasta obtener una mezcla homogénea. Cocinar en sartén antiadherente por ambos lados.", "id": 9}, {"name": "Licuado de proteína", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Fruta", "amt": 0.5, "unit": "taza"}, {"name": "Nuez", "amt": 10.0, "unit": "g"}], "prep": "Licuar todos los ingredientes hasta integrar. Servir frío.", "id": 10}, {"name": "Huevos rancheros", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Salsa roja", "amt": 0.5, "unit": "taza"}], "prep": "Freír ligeramente las tortillas, colocar los huevos estrellados encima y bañar con salsa caliente.", "id": 11}, {"name": "Yogurt con granola y Manzana", "cat": "Desayuno", "kcal": 330.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Granola", "amt": 30.0, "unit": "g"}, {"name": "Manzana", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 12}, {"name": "Smoothie de frutos rojos", "cat": "Desayuno", "kcal": 180.0, "ings": [{"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Frutos rojos", "amt": 0.5, "unit": "taza"}, {"name": "Nuez", "amt": 10.0, "unit": "g"}], "prep": "Licuar todos los ingredientes hasta obtener una consistencia uniforme.", "id": 13}, {"name": "Pan integral con crema de cacahuate", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Crema de cacahuate", "amt": 1.0, "unit": "cucharada"}], "prep": "Untar la crema de cacahuate sobre el pan integral.", "id": 14}, {"name": "Wrap de huevo y espinaca", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Tortilla integral", "amt": 1.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar el huevo revuelto con la espinaca. Colocar sobre la tortilla, enrollar y guardar en recipiente hermético si se lleva de lonchera.", "id": 15}, {"name": "Burrito de huevo y pavo", "cat": "Desayuno", "kcal": 330.0, "ings": [{"name": "Tortilla integral", "amt": 1.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamón de pavo", "amt": 60.0, "unit": "g"}], "prep": "Cocinar el huevo revuelto junto con el jamón de pavo picado. Colocar sobre la tortilla y enrollar.", "id": 16}, {"name": "Ceviche chico de pescado", "cat": "Desayuno", "kcal": 180.0, "ings": [{"name": "Pescado blanco", "amt": 120.0, "unit": "g"}, {"name": "Limón", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Cilantro", "amt": 1.0, "unit": "al gusto"}], "prep": "Cortar el pescado en cubos pequeños y marinar en jugo de limón hasta que esté cocido (ceviche). Agregar jitomate, cebolla y cilantro picados.", "id": 17}, {"name": "Sandwich de huevo", "cat": "Desayuno", "kcal": 320.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Lechuga", "amt": 1.0, "unit": "hoja"}], "prep": "Cocinar el huevo al gusto (cocido o revuelto) y colocar entre las rebanadas de pan con lechuga.", "id": 18}, {"name": "Pollo a la plancha con arroz y ensalada", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Arroz integral cocido", "amt": 0.5, "unit": "taza"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Limón", "amt": 0.5, "unit": "pieza"}, {"name": "Sal", "amt": 1.0, "unit": "pizca"}, {"name": "Pimienta", "amt": 1.0, "unit": "pizca"}], "prep": "Sazonar la pechuga con sal, pimienta y ajo. Cocinar a la plancha 6-8 min por lado. Servir con arroz cocido y ensalada de lechuga, jitomate y pepino aliñada con limón.", "id": 19}, {"name": "Bistec con calabacita", "cat": "Comida", "kcal": 340.0, "ings": [{"name": "Bistec de res", "amt": 150.0, "unit": "g"}, {"name": "Calabacita", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar el bistec a la plancha. Saltear la calabacita en cubos con poco aceite.", "id": 20}, {"name": "Picadillo de carne molida", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Carne molida magra", "amt": 150.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Ajo", "amt": 1.0, "unit": "diente"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Papa", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la carne molida con jitomate, cebolla y ajo picados. Agregar zanahoria y papa en cubos pequeños. Usar poco aceite y cocinar hasta que las verduras estén suaves.", "id": 21}, {"name": "Pollo en salsa verde con calabaza", "cat": "Comida", "kcal": 390.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Calabaza", "amt": 1.0, "unit": "taza"}, {"name": "Salsa verde", "amt": 0.5, "unit": "taza"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Cocinar el pollo y bañar con salsa verde. Acompañar con calabaza salteada y tortillas.", "id": 22}, {"name": "Carne asada con ensalada", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Carne de res", "amt": 150.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Asar la carne sazonada con sal y pimienta. Servir con ensalada y tortillas.", "id": 23}, {"name": "Caldo de pollo con verduras", "cat": "Comida", "kcal": 350.0, "ings": [{"name": "Pollo", "amt": 150.0, "unit": "g"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Calabaza", "amt": 0.5, "unit": "pieza"}, {"name": "Apio", "amt": 1.0, "unit": "rama"}, {"name": "Arroz", "amt": 2.0, "unit": "cucharada"}], "prep": "Hervir el pollo con las verduras hasta cocer. Sazonar con sal y agregar un poco de arroz.", "id": 24}, {"name": "Pollo en fajitas con arroz", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pimiento", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}], "prep": "Cortar el pollo en tiras y cocinar con pimiento y cebolla. Servir con arroz.", "id": 25}, {"name": "Bistec con arroz", "cat": "Comida", "kcal": 480.0, "ings": [{"name": "Bistec de res", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar el bistec a la plancha y servir con arroz cocido.", "id": 26}, {"name": "Carne molida con verduras", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Carne molida magra", "amt": 150.0, "unit": "g"}, {"name": "Verduras mixtas", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar la carne molida con las verduras picadas hasta que estén suaves.", "id": 27}, {"name": "Caldo de res con verduras", "cat": "Comida", "kcal": 400.0, "ings": [{"name": "Carne de res", "amt": 150.0, "unit": "g"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Calabaza", "amt": 0.5, "unit": "pieza"}], "prep": "Hervir la carne con las verduras durante aproximadamente 40 minutos hasta que estén suaves.", "id": 28}, {"name": "Pollo al horno con calabaza", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Pollo", "amt": 150.0, "unit": "g"}, {"name": "Calabaza", "amt": 1.0, "unit": "taza"}, {"name": "Aceite de oliva", "amt": 1.0, "unit": "cucharadita"}], "prep": "Hornear el pollo sazonado. Saltear la calabaza con un poco de aceite.", "id": 29}, {"name": "Carne deshebrada con frijoles", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Carne deshebrada", "amt": 150.0, "unit": "g"}, {"name": "Frijoles cocidos", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar la carne hasta poder deshebrarla. Servir acompañada de frijoles cocidos.", "id": 30}, {"name": "Pescado a la plancha con arroz y verduras", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Pescado", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}, {"name": "Verduras al vapor", "amt": 1.0, "unit": "taza"}, {"name": "Limón", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar el pescado a la plancha con limón y sal. Servir con arroz y verduras al vapor.", "id": 31}, {"name": "Pollo con pasta integral", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pasta integral cocida", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar el pollo a la plancha y mezclar o servir junto con la pasta integral cocida.", "id": 32}, {"name": "Bowl de pollo con quinoa", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Quinoa cocida", "amt": 0.5, "unit": "taza"}, {"name": "Verduras mixtas", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar la pechuga a la plancha con sal, pimienta y aceite de oliva. Armar el bowl con quinoa cocida y verduras.", "id": 33}, {"name": "Pollo al limón", "cat": "Comida", "kcal": 400.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Limón", "amt": 1.0, "unit": "pieza"}, {"name": "Ajo", "amt": 1.0, "unit": "diente"}], "prep": "Marinar el pollo con jugo de limón y ajo. Cocinar a la plancha o al horno.", "id": 34}, {"name": "Albóndigas de res", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Carne molida", "amt": 150.0, "unit": "g"}, {"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Pan molido", "amt": 2.0, "unit": "cucharada"}], "prep": "Mezclar la carne molida con huevo y pan molido. Formar bolitas y cocinar en salsa de jitomate o al horno.", "id": 35}, {"name": "Bowl de pollo mediterráneo", "cat": "Comida", "kcal": 480.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar el pollo a la plancha. Armar el bowl con pepino, jitomate y aguacate.", "id": 36}, {"name": "Bowl estilo chipotle", "cat": "Comida", "kcal": 550.0, "ings": [{"name": "Pollo o carne de res", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}, {"name": "Frijoles cocidos", "amt": 0.25, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar la proteína elegida. Armar el bowl con arroz, frijoles y pico de gallo (jitomate y cebolla picados).", "id": 37}, {"name": "Pollo con papa al horno", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Papa", "amt": 1.0, "unit": "pieza"}], "prep": "Hornear el pollo sazonado junto con la papa en cubos hasta que ambos estén cocidos.", "id": 38}, {"name": "Chuleta magra con ensalada", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Chuleta magra", "amt": 150.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la chuleta a la plancha. Servir con ensalada de lechuga y jitomate.", "id": 39}, {"name": "Aguachile moderado", "cat": "Comida", "kcal": 280.0, "ings": [{"name": "Camarón", "amt": 150.0, "unit": "g"}, {"name": "Limón", "amt": 2.0, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Chile", "amt": 1.0, "unit": "al gusto"}], "prep": "Marinar el camarón en jugo de limón. Agregar pepino en rodajas y chile al gusto. Evitar el exceso de tostadas como acompañamiento.", "id": 40}, {"name": "Yogurt griego natural", "cat": "Snack", "kcal": 100.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}], "prep": "Servir directamente como colación.", "id": 41}, {"name": "Manzana con almendras", "cat": "Snack", "kcal": 170.0, "ings": [{"name": "Manzana", "amt": 1.0, "unit": "pieza"}, {"name": "Almendra", "amt": 10.0, "unit": "pieza"}], "prep": "Lavar y cortar la manzana en gajos. Acompañar con las almendras.", "id": 42}, {"name": "Almendras", "cat": "Snack", "kcal": 170.0, "ings": [{"name": "Almendra", "amt": 30.0, "unit": "g"}], "prep": "Consumir directamente como colación.", "id": 43}, {"name": "Gelatina light", "cat": "Snack", "kcal": 15.0, "ings": [{"name": "Gelatina light", "amt": 1.0, "unit": "pieza"}], "prep": "Consumir directamente como colación.", "id": 44}, {"name": "Pera", "cat": "Snack", "kcal": 100.0, "ings": [{"name": "Pera", "amt": 1.0, "unit": "pieza"}], "prep": "Lavar y consumir directamente.", "id": 45}, {"name": "Tacos de bistec", "cat": "Cena", "kcal": 310.0, "ings": [{"name": "Bistec de res", "amt": 120.0, "unit": "g"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Cocinar el bistec a la plancha, cortar en tiras y servir en tortillas de maíz.", "id": 46}, {"name": "Ensalada de pollo", "cat": "Cena", "kcal": 350.0, "ings": [{"name": "Pollo", "amt": 120.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar el pollo y cortarlo en tiras. Mezclar con lechuga, jitomate y pepino.", "id": 47}, {"name": "Quesadillas de queso panela", "cat": "Desayuno/Cena", "kcal": 320.0, "ings": [{"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Calentar las tortillas con el queso panela en comal hasta que se derrita.", "id": 48}, {"name": "Tostadas de pollo", "cat": "Cena", "kcal": 300.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Pollo deshebrado", "amt": 100.0, "unit": "g"}], "prep": "Colocar el pollo deshebrado sobre las tostadas. Acompañar con verduras al gusto.", "id": 49}, {"name": "Rollos de jamón con queso panela", "cat": "Cena", "kcal": 180.0, "ings": [{"name": "Jamón de pavo", "amt": 4.0, "unit": "rebanada"}, {"name": "Queso panela", "amt": 60.0, "unit": "g"}], "prep": "Enrollar una rebanada de jamón de pavo con un trozo de queso panela. Repetir hasta formar 3-4 rollos.", "id": 50}, {"name": "Atún con aguacate", "cat": "Cena", "kcal": 320.0, "ings": [{"name": "Atún en agua", "amt": 1.0, "unit": "lata"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}], "prep": "Escurrir el atún y mezclar con el aguacate machacado o en cubos.", "id": 51}, {"name": "Ensalada de atún", "cat": "Cena", "kcal": 250.0, "ings": [{"name": "Atún en agua", "amt": 1.0, "unit": "lata"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Escurrir el atún y mezclar con las verduras picadas.", "id": 52}, {"name": "Tostadas de jocoque", "cat": "Cena", "kcal": 180.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Jocoque", "amt": 3.0, "unit": "cucharada"}], "prep": "Untar el jocoque sobre las tostadas. Agregar verduras al gusto.", "id": 53}, {"name": "Huevo con espinaca", "cat": "Desayuno/Cena", "kcal": 180.0, "ings": [{"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Clara de huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}], "prep": "Sofreír la espinaca y agregar el huevo y las claras. Revolver hasta cuajar.", "id": 54}, {"name": "Queso panela con jitomate", "cat": "Cena", "kcal": 160.0, "ings": [{"name": "Queso panela", "amt": 60.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}], "prep": "Cortar el queso panela y el jitomate en rebanadas y servir juntos.", "id": 55}, {"name": "Omelette de champiñones", "cat": "Desayuno/Cena", "kcal": 220.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Champiñón", "amt": 0.5, "unit": "taza"}], "prep": "Saltear los champiñones, agregar el huevo batido y cocinar en sartén antiadherente hasta cuajar.", "id": 56}, {"name": "Ensalada de pavo", "cat": "Cena", "kcal": 220.0, "ings": [{"name": "Jamón de pavo", "amt": 60.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Mezclar el jamón de pavo en tiras con las verduras picadas.", "id": 57}, {"name": "Tostadas con aguacate", "cat": "Desayuno/Cena", "kcal": 260.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}, {"name": "Limón", "amt": 0.25, "unit": "pieza"}], "prep": "Machacar el aguacate con limón y sal. Untar sobre las tostadas.", "id": 58}, {"name": "Tostadas de tinga", "cat": "Cena", "kcal": 330.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Pollo deshebrado", "amt": 100.0, "unit": "g"}, {"name": "Salsa chipotle", "amt": 2.0, "unit": "cucharada"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar el pollo deshebrado con salsa chipotle y cebolla. Servir sobre las tostadas.", "id": 59}, {"name": "Yogurt con granola y Platano", "cat": "Desayuno", "kcal": 285.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Granola", "amt": 30.0, "unit": "g"}, {"name": "Platano", "amt": 0.5, "unit": "pieza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 60}, {"name": "Yogurt con nuez y Melon", "cat": "Desayuno", "kcal": 265.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Melon", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 61}, {"name": "Yogurt con nuez y Papaya", "cat": "Desayuno", "kcal": 265.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Papaya", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "id": 62}, {"name": "Tostadas con jocoque", "cat": "Desayuno", "kcal": 130.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Jocoque de chipotle", "amt": 30.0, "unit": "g"}], "prep": "Unta 2 tostadas con 2 cucharadas de jocoque de chipotle cada una", "id": 63}, {"name": "Tostadas con jocoque y aguacate", "cat": "Cena", "kcal": 160.0, "ings": [{"name": "Tostada salma", "amt": 3.0, "unit": "pieza"}, {"name": "Jocoque de chipotle", "amt": 30.0, "unit": "g"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}, {"name": "Salsa maggi", "amt": 5.0, "unit": "g"}], "prep": "Unta 3 tostadas con 2 cucharadas de jocoque de chipotle cada una, agrega 1/4 de aguacate y sazona con salsa maggi y valentina", "id": 64}, {"name": "Tostadas con aguacate y huevo", "cat": "Desayuno", "kcal": 300.0, "ings": [{"name": "Tostada salma", "amt": 3.0, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.75, "unit": "pieza"}, {"name": "huevo", "amt": 2.0, "unit": "pieza"}], "prep": "Unta 3 tostadas con 1/4 de aguacate cada una y agrega un huevo cocido a cada una", "id": 65}, {"name": "Galletas maria", "cat": "Snack", "kcal": 115.0, "ings": [{"name": "Galletas marias", "amt": 5.0, "unit": "pieza"}], "prep": "Pieza", "id": 66}, {"name": "Manzana", "cat": "Snack", "kcal": 95.0, "ings": [{"name": "Manzana", "amt": 1.0, "unit": "pieza"}], "prep": "Pieza", "id": 67}, {"name": "Uvas", "cat": "Snack", "kcal": 50.0, "ings": [{"name": "Uvas", "amt": 15.0, "unit": "pieza"}], "prep": "Pieza", "id": 68}, {"name": "Chicharrones", "cat": "Snack", "kcal": 85.0, "ings": [{"name": "Chicharron", "amt": 0.5, "unit": "taza"}], "prep": "Pieza", "id": 69}, {"name": "Mix de nueces", "cat": "Snack", "kcal": 95.0, "ings": [{"name": "Mix de nueces", "amt": 15.0, "unit": "g"}], "prep": "Pieza", "id": 70}, {"name": "Rollos de jamon", "cat": "Snack", "kcal": 75.0, "ings": [{"name": "Jamon de pavo", "amt": 3.0, "unit": "pieza"}], "prep": "Haz rollos y corta en 3 porciones cada jamon", "id": 71}, {"name": "Omelette de verduras", "cat": "Desayuno/Cena", "kcal": 160.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.25, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.2, "unit": "pieza"}, {"name": "Chile serrano", "amt": 2.0, "unit": "pieza"}], "prep": "Pica la verdura en trozos pequeños, doralos y agregale el huevo batido", "id": 72}, {"name": "Omelette de jamon con queso", "cat": "Desayuno/Cena", "kcal": 305.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamon", "amt": 2.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.2, "unit": "pieza"}, {"name": "Queso panela", "amt": 30.0, "unit": "g"}], "prep": "", "id": 73}];
+var SEED=[{"name": "Huevos con jamón de pavo y espinaca", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamón de pavo", "amt": 2.0, "unit": "rebanada"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}, {"name": "Aceite en spray", "amt": 1.0, "unit": "pizca"}], "prep": "Sofreír la espinaba con un toque de aceite en spray, agregar el jamón de pavo picado y los huevos. Revolver a fuego medio hasta cuajar.", "mins": 10, "diff": "Fácil", "id": 1}, {"name": "Yogurt griego con nueces y fruta", "cat": "Desayuno", "kcal": 320.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Manzana", "amt": 0.5, "unit": "pieza"}], "prep": "Servir el yogurt en un tazón, agregar la nuez picada y la manzana en cubos.", "mins": 3, "diff": "Fácil", "id": 2}, {"name": "Sandwich integral de pavo", "cat": "Desayuno/Cena", "kcal": 300.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Jamón de pavo", "amt": 2.0, "unit": "rebanada"}, {"name": "Queso panela", "amt": 1.0, "unit": "rebanada"}, {"name": "Aguacate", "amt": 0.25, "unit": "pieza"}, {"name": "Lechuga", "amt": 1.0, "unit": "hoja"}, {"name": "Jitomate", "amt": 2.0, "unit": "rebanada"}], "prep": "Armar el sándwich colocando jamón, queso, aguacate, lechuga y jitomate entre las rebanadas de pan integral.", "mins": 5, "diff": "Fácil", "id": 3}, {"name": "Omelette de claras con queso panela", "cat": "Desayuno", "kcal": 170.0, "ings": [{"name": "Clara de huevo", "amt": 4.0, "unit": "pieza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Batir las claras, verter en sartén antiadherente, agregar el queso panela y doblar al cuajar.", "mins": 8, "diff": "Fácil", "id": 4}, {"name": "Huevos a la mexicana", "cat": "Desayuno", "kcal": 170.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Chile", "amt": 1.0, "unit": "al gusto"}], "prep": "Sofreír jitomate, cebolla y chile picados, agregar los huevos batidos y cocinar revolviendo.", "mins": 12, "diff": "Fácil", "id": 5}, {"name": "Mollete integral", "cat": "Desayuno", "kcal": 350.0, "ings": [{"name": "Bolillo integral", "amt": 1.0, "unit": "pieza"}, {"name": "Frijoles refritos", "amt": 4.0, "unit": "cucharada"}, {"name": "Queso panela", "amt": 30.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Partir el bolillo a la mitad y retirar el migajón. Untar frijoles refritos, agregar queso panela y gratinar en sartén u horno. Servir con pico de gallo (jitomate y cebolla picados).", "mins": 15, "diff": "Fácil", "id": 6}, {"name": "Avena con leche y fruta", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Avena", "amt": 0.5, "unit": "taza"}, {"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Canela", "amt": 1.0, "unit": "pizca"}, {"name": "Manzana o plátano", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la avena con la leche a fuego medio. Agregar canela y la fruta en trozos al servir.", "mins": 10, "diff": "Fácil", "id": 7}, {"name": "Chilaquiles horneados", "cat": "Desayuno", "kcal": 310.0, "ings": [{"name": "Tortilla de maíz", "amt": 4.0, "unit": "pieza"}, {"name": "Salsa verde o roja", "amt": 0.5, "unit": "taza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Cortar las tortillas en triángulos y hornear 10 min. Bañar con salsa, agregar queso y hornear 5 min más.", "mins": 20, "diff": "Fácil", "id": 8}, {"name": "Hotcakes de avena", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Avena", "amt": 0.5, "unit": "taza"}, {"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Canela", "amt": 1.0, "unit": "pizca"}], "prep": "Licuar la avena con el huevo y la canela hasta obtener una mezcla homogénea. Cocinar en sartén antiadherente por ambos lados.", "mins": 15, "diff": "Medio", "id": 9}, {"name": "Licuado de proteína", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Fruta", "amt": 0.5, "unit": "taza"}, {"name": "Nuez", "amt": 10.0, "unit": "g"}], "prep": "Licuar todos los ingredientes hasta integrar. Servir frío.", "mins": 3, "diff": "Fácil", "id": 10}, {"name": "Huevos rancheros", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Salsa roja", "amt": 0.5, "unit": "taza"}], "prep": "Freír ligeramente las tortillas, colocar los huevos estrellados encima y bañar con salsa caliente.", "mins": 15, "diff": "Medio", "id": 11}, {"name": "Yogurt con granola y Manzana", "cat": "Desayuno", "kcal": 330.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Granola", "amt": 30.0, "unit": "g"}, {"name": "Manzana", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "mins": 3, "diff": "Fácil", "id": 12}, {"name": "Smoothie de frutos rojos", "cat": "Desayuno", "kcal": 180.0, "ings": [{"name": "Leche light", "amt": 1.0, "unit": "taza"}, {"name": "Frutos rojos", "amt": 0.5, "unit": "taza"}, {"name": "Nuez", "amt": 10.0, "unit": "g"}], "prep": "Licuar todos los ingredientes hasta obtener una consistencia uniforme.", "mins": 5, "diff": "Fácil", "id": 13}, {"name": "Pan integral con crema de cacahuate", "cat": "Desayuno", "kcal": 220.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Crema de cacahuate", "amt": 1.0, "unit": "cucharada"}], "prep": "Untar la crema de cacahuate sobre el pan integral.", "mins": 2, "diff": "Fácil", "id": 14}, {"name": "Wrap de huevo y espinaca", "cat": "Desayuno", "kcal": 280.0, "ings": [{"name": "Tortilla integral", "amt": 1.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar el huevo revuelto con la espinaca. Colocar sobre la tortilla, enrollar y guardar en recipiente hermético si se lleva de lonchera.", "mins": 10, "diff": "Fácil", "id": 15}, {"name": "Burrito de huevo y pavo", "cat": "Desayuno", "kcal": 330.0, "ings": [{"name": "Tortilla integral", "amt": 1.0, "unit": "pieza"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamón de pavo", "amt": 60.0, "unit": "g"}], "prep": "Cocinar el huevo revuelto junto con el jamón de pavo picado. Colocar sobre la tortilla y enrollar.", "mins": 10, "diff": "Fácil", "id": 16}, {"name": "Ceviche chico de pescado", "cat": "Desayuno", "kcal": 180.0, "ings": [{"name": "Pescado blanco", "amt": 120.0, "unit": "g"}, {"name": "Limón", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Cilantro", "amt": 1.0, "unit": "al gusto"}], "prep": "Cortar el pescado en cubos pequeños y marinar en jugo de limón hasta que esté cocido (ceviche). Agregar jitomate, cebolla y cilantro picados.", "mins": 25, "diff": "Medio", "id": 17}, {"name": "Sandwich de huevo", "cat": "Desayuno", "kcal": 320.0, "ings": [{"name": "Pan integral", "amt": 2.0, "unit": "rebanada"}, {"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Lechuga", "amt": 1.0, "unit": "hoja"}], "prep": "Cocinar el huevo al gusto (cocido o revuelto) y colocar entre las rebanadas de pan con lechuga.", "mins": 10, "diff": "Fácil", "id": 18}, {"name": "Pollo a la plancha con arroz y ensalada", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Arroz integral cocido", "amt": 0.5, "unit": "taza"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Limón", "amt": 0.5, "unit": "pieza"}, {"name": "Sal", "amt": 1.0, "unit": "pizca"}, {"name": "Pimienta", "amt": 1.0, "unit": "pizca"}], "prep": "Sazonar la pechuga con sal, pimienta y ajo. Cocinar a la plancha 6-8 min por lado. Servir con arroz cocido y ensalada de lechuga, jitomate y pepino aliñada con limón.", "mins": 25, "diff": "Medio", "id": 19}, {"name": "Bistec con calabacita", "cat": "Comida", "kcal": 340.0, "ings": [{"name": "Bistec de res", "amt": 150.0, "unit": "g"}, {"name": "Calabacita", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar el bistec a la plancha. Saltear la calabacita en cubos con poco aceite.", "mins": 20, "diff": "Fácil", "id": 20}, {"name": "Picadillo de carne molida", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Carne molida magra", "amt": 150.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Ajo", "amt": 1.0, "unit": "diente"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Papa", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la carne molida con jitomate, cebolla y ajo picados. Agregar zanahoria y papa en cubos pequeños. Usar poco aceite y cocinar hasta que las verduras estén suaves.", "mins": 30, "diff": "Medio", "id": 21}, {"name": "Pollo en salsa verde con calabaza", "cat": "Comida", "kcal": 390.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Calabaza", "amt": 1.0, "unit": "taza"}, {"name": "Salsa verde", "amt": 0.5, "unit": "taza"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Cocinar el pollo y bañar con salsa verde. Acompañar con calabaza salteada y tortillas.", "mins": 30, "diff": "Medio", "id": 22}, {"name": "Carne asada con ensalada", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Carne de res", "amt": 150.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Asar la carne sazonada con sal y pimienta. Servir con ensalada y tortillas.", "mins": 20, "diff": "Fácil", "id": 23}, {"name": "Caldo de pollo con verduras", "cat": "Comida", "kcal": 350.0, "ings": [{"name": "Pollo", "amt": 150.0, "unit": "g"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Calabaza", "amt": 0.5, "unit": "pieza"}, {"name": "Apio", "amt": 1.0, "unit": "rama"}, {"name": "Arroz", "amt": 2.0, "unit": "cucharada"}], "prep": "Hervir el pollo con las verduras hasta cocer. Sazonar con sal y agregar un poco de arroz.", "mins": 45, "diff": "Medio", "id": 24}, {"name": "Pollo en fajitas con arroz", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pimiento", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}], "prep": "Cortar el pollo en tiras y cocinar con pimiento y cebolla. Servir con arroz.", "mins": 25, "diff": "Medio", "id": 25}, {"name": "Bistec con arroz", "cat": "Comida", "kcal": 480.0, "ings": [{"name": "Bistec de res", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar el bistec a la plancha y servir con arroz cocido.", "mins": 20, "diff": "Fácil", "id": 26}, {"name": "Carne molida con verduras", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Carne molida magra", "amt": 150.0, "unit": "g"}, {"name": "Verduras mixtas", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar la carne molida con las verduras picadas hasta que estén suaves.", "mins": 20, "diff": "Fácil", "id": 27}, {"name": "Caldo de res con verduras", "cat": "Comida", "kcal": 400.0, "ings": [{"name": "Carne de res", "amt": 150.0, "unit": "g"}, {"name": "Zanahoria", "amt": 0.5, "unit": "pieza"}, {"name": "Calabaza", "amt": 0.5, "unit": "pieza"}], "prep": "Hervir la carne con las verduras durante aproximadamente 40 minutos hasta que estén suaves.", "mins": 50, "diff": "Medio", "id": 28}, {"name": "Pollo al horno con calabaza", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Pollo", "amt": 150.0, "unit": "g"}, {"name": "Calabaza", "amt": 1.0, "unit": "taza"}, {"name": "Aceite de oliva", "amt": 1.0, "unit": "cucharadita"}], "prep": "Hornear el pollo sazonado. Saltear la calabaza con un poco de aceite.", "mins": 40, "diff": "Fácil", "id": 29}, {"name": "Carne deshebrada con frijoles", "cat": "Comida", "kcal": 450.0, "ings": [{"name": "Carne deshebrada", "amt": 150.0, "unit": "g"}, {"name": "Frijoles cocidos", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar la carne hasta poder deshebrarla. Servir acompañada de frijoles cocidos.", "mins": 60, "diff": "Medio", "id": 30}, {"name": "Pescado a la plancha con arroz y verduras", "cat": "Comida", "kcal": 380.0, "ings": [{"name": "Pescado", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}, {"name": "Verduras al vapor", "amt": 1.0, "unit": "taza"}, {"name": "Limón", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar el pescado a la plancha con limón y sal. Servir con arroz y verduras al vapor.", "mins": 20, "diff": "Fácil", "id": 31}, {"name": "Pollo con pasta integral", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pasta integral cocida", "amt": 0.5, "unit": "taza"}], "prep": "Cocinar el pollo a la plancha y mezclar o servir junto con la pasta integral cocida.", "mins": 20, "diff": "Fácil", "id": 32}, {"name": "Bowl de pollo con quinoa", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Quinoa cocida", "amt": 0.5, "unit": "taza"}, {"name": "Verduras mixtas", "amt": 1.0, "unit": "taza"}], "prep": "Cocinar la pechuga a la plancha con sal, pimienta y aceite de oliva. Armar el bowl con quinoa cocida y verduras.", "mins": 25, "diff": "Fácil", "id": 33}, {"name": "Pollo al limón", "cat": "Comida", "kcal": 400.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Limón", "amt": 1.0, "unit": "pieza"}, {"name": "Ajo", "amt": 1.0, "unit": "diente"}], "prep": "Marinar el pollo con jugo de limón y ajo. Cocinar a la plancha o al horno.", "mins": 30, "diff": "Fácil", "id": 34}, {"name": "Albóndigas de res", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Carne molida", "amt": 150.0, "unit": "g"}, {"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Pan molido", "amt": 2.0, "unit": "cucharada"}], "prep": "Mezclar la carne molida con huevo y pan molido. Formar bolitas y cocinar en salsa de jitomate o al horno.", "mins": 35, "diff": "Medio", "id": 35}, {"name": "Bowl de pollo mediterráneo", "cat": "Comida", "kcal": 480.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar el pollo a la plancha. Armar el bowl con pepino, jitomate y aguacate.", "mins": 20, "diff": "Fácil", "id": 36}, {"name": "Bowl estilo chipotle", "cat": "Comida", "kcal": 550.0, "ings": [{"name": "Pollo o carne de res", "amt": 150.0, "unit": "g"}, {"name": "Arroz cocido", "amt": 0.5, "unit": "taza"}, {"name": "Frijoles cocidos", "amt": 0.25, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar la proteína elegida. Armar el bowl con arroz, frijoles y pico de gallo (jitomate y cebolla picados).", "mins": 25, "diff": "Medio", "id": 37}, {"name": "Pollo con papa al horno", "cat": "Comida", "kcal": 500.0, "ings": [{"name": "Pechuga de pollo", "amt": 150.0, "unit": "g"}, {"name": "Papa", "amt": 1.0, "unit": "pieza"}], "prep": "Hornear el pollo sazonado junto con la papa en cubos hasta que ambos estén cocidos.", "mins": 50, "diff": "Fácil", "id": 38}, {"name": "Chuleta magra con ensalada", "cat": "Comida", "kcal": 420.0, "ings": [{"name": "Chuleta magra", "amt": 150.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar la chuleta a la plancha. Servir con ensalada de lechuga y jitomate.", "mins": 15, "diff": "Fácil", "id": 39}, {"name": "Aguachile moderado", "cat": "Comida", "kcal": 280.0, "ings": [{"name": "Camarón", "amt": 150.0, "unit": "g"}, {"name": "Limón", "amt": 2.0, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}, {"name": "Chile", "amt": 1.0, "unit": "al gusto"}], "prep": "Marinar el camarón en jugo de limón. Agregar pepino en rodajas y chile al gusto. Evitar el exceso de tostadas como acompañamiento.", "mins": 20, "diff": "Medio", "id": 40}, {"name": "Yogurt griego natural", "cat": "Snack", "kcal": 100.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}], "prep": "Servir directamente como colación.", "mins": 1, "diff": "Fácil", "id": 41}, {"name": "Manzana con almendras", "cat": "Snack", "kcal": 170.0, "ings": [{"name": "Manzana", "amt": 1.0, "unit": "pieza"}, {"name": "Almendra", "amt": 10.0, "unit": "pieza"}], "prep": "Lavar y cortar la manzana en gajos. Acompañar con las almendras.", "mins": 3, "diff": "Fácil", "id": 42}, {"name": "Almendras", "cat": "Snack", "kcal": 170.0, "ings": [{"name": "Almendra", "amt": 30.0, "unit": "g"}], "prep": "Consumir directamente como colación.", "mins": 1, "diff": "Fácil", "id": 43}, {"name": "Gelatina light", "cat": "Snack", "kcal": 15.0, "ings": [{"name": "Gelatina light", "amt": 1.0, "unit": "pieza"}], "prep": "Consumir directamente como colación.", "mins": 1, "diff": "Fácil", "id": 44}, {"name": "Pera", "cat": "Snack", "kcal": 100.0, "ings": [{"name": "Pera", "amt": 1.0, "unit": "pieza"}], "prep": "Lavar y consumir directamente.", "mins": 1, "diff": "Fácil", "id": 45}, {"name": "Tacos de bistec", "cat": "Cena", "kcal": 310.0, "ings": [{"name": "Bistec de res", "amt": 120.0, "unit": "g"}, {"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}], "prep": "Cocinar el bistec a la plancha, cortar en tiras y servir en tortillas de maíz.", "mins": 15, "diff": "Fácil", "id": 46}, {"name": "Ensalada de pollo", "cat": "Cena", "kcal": 350.0, "ings": [{"name": "Pollo", "amt": 120.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Cocinar el pollo y cortarlo en tiras. Mezclar con lechuga, jitomate y pepino.", "mins": 20, "diff": "Fácil", "id": 47}, {"name": "Quesadillas de queso panela", "cat": "Desayuno/Cena", "kcal": 320.0, "ings": [{"name": "Tortilla de maíz", "amt": 2.0, "unit": "pieza"}, {"name": "Queso panela", "amt": 40.0, "unit": "g"}], "prep": "Calentar las tortillas con el queso panela en comal hasta que se derrita.", "mins": 8, "diff": "Fácil", "id": 48}, {"name": "Tostadas de pollo", "cat": "Cena", "kcal": 300.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Pollo deshebrado", "amt": 100.0, "unit": "g"}], "prep": "Colocar el pollo deshebrado sobre las tostadas. Acompañar con verduras al gusto.", "mins": 5, "diff": "Fácil", "id": 49}, {"name": "Rollos de jamón con queso panela", "cat": "Cena", "kcal": 180.0, "ings": [{"name": "Jamón de pavo", "amt": 4.0, "unit": "rebanada"}, {"name": "Queso panela", "amt": 60.0, "unit": "g"}], "prep": "Enrollar una rebanada de jamón de pavo con un trozo de queso panela. Repetir hasta formar 3-4 rollos.", "mins": 5, "diff": "Fácil", "id": 50}, {"name": "Atún con aguacate", "cat": "Cena", "kcal": 320.0, "ings": [{"name": "Atún en agua", "amt": 1.0, "unit": "lata"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}], "prep": "Escurrir el atún y mezclar con el aguacate machacado o en cubos.", "mins": 5, "diff": "Fácil", "id": 51}, {"name": "Ensalada de atún", "cat": "Cena", "kcal": 250.0, "ings": [{"name": "Atún en agua", "amt": 1.0, "unit": "lata"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Escurrir el atún y mezclar con las verduras picadas.", "mins": 8, "diff": "Fácil", "id": 52}, {"name": "Tostadas de jocoque", "cat": "Cena", "kcal": 180.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Jocoque", "amt": 3.0, "unit": "cucharada"}], "prep": "Untar el jocoque sobre las tostadas. Agregar verduras al gusto.", "mins": 3, "diff": "Fácil", "id": 53}, {"name": "Huevo con espinaca", "cat": "Desayuno/Cena", "kcal": 180.0, "ings": [{"name": "Huevo", "amt": 1.0, "unit": "pieza"}, {"name": "Clara de huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Espinaca", "amt": 1.0, "unit": "taza"}], "prep": "Sofreír la espinaca y agregar el huevo y las claras. Revolver hasta cuajar.", "mins": 10, "diff": "Fácil", "id": 54}, {"name": "Queso panela con jitomate", "cat": "Cena", "kcal": 160.0, "ings": [{"name": "Queso panela", "amt": 60.0, "unit": "g"}, {"name": "Jitomate", "amt": 1.0, "unit": "pieza"}], "prep": "Cortar el queso panela y el jitomate en rebanadas y servir juntos.", "mins": 3, "diff": "Fácil", "id": 55}, {"name": "Omelette de champiñones", "cat": "Desayuno/Cena", "kcal": 220.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Champiñón", "amt": 0.5, "unit": "taza"}], "prep": "Saltear los champiñones, agregar el huevo batido y cocinar en sartén antiadherente hasta cuajar.", "mins": 12, "diff": "Fácil", "id": 56}, {"name": "Ensalada de pavo", "cat": "Cena", "kcal": 220.0, "ings": [{"name": "Jamón de pavo", "amt": 60.0, "unit": "g"}, {"name": "Lechuga", "amt": 1.0, "unit": "taza"}, {"name": "Jitomate", "amt": 0.5, "unit": "pieza"}, {"name": "Pepino", "amt": 0.5, "unit": "pieza"}], "prep": "Mezclar el jamón de pavo en tiras con las verduras picadas.", "mins": 5, "diff": "Fácil", "id": 57}, {"name": "Tostadas con aguacate", "cat": "Desayuno/Cena", "kcal": 260.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}, {"name": "Limón", "amt": 0.25, "unit": "pieza"}], "prep": "Machacar el aguacate con limón y sal. Untar sobre las tostadas.", "mins": 5, "diff": "Fácil", "id": 58}, {"name": "Tostadas de tinga", "cat": "Cena", "kcal": 330.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Pollo deshebrado", "amt": 100.0, "unit": "g"}, {"name": "Salsa chipotle", "amt": 2.0, "unit": "cucharada"}, {"name": "Cebolla", "amt": 0.25, "unit": "pieza"}], "prep": "Cocinar el pollo deshebrado con salsa chipotle y cebolla. Servir sobre las tostadas.", "mins": 20, "diff": "Medio", "id": 59}, {"name": "Yogurt con granola y Platano", "cat": "Desayuno", "kcal": 285.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Granola", "amt": 30.0, "unit": "g"}, {"name": "Platano", "amt": 0.5, "unit": "pieza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "mins": 3, "diff": "Fácil", "id": 60}, {"name": "Yogurt con nuez y Melon", "cat": "Desayuno", "kcal": 265.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Melon", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "mins": 3, "diff": "Fácil", "id": 61}, {"name": "Yogurt con nuez y Papaya", "cat": "Desayuno", "kcal": 265.0, "ings": [{"name": "Yogurt griego natural", "amt": 1.0, "unit": "taza"}, {"name": "Nuez", "amt": 30.0, "unit": "g"}, {"name": "Papaya", "amt": 0.5, "unit": "taza"}], "prep": "Colocar el yogurt en un tazón y agregar granola y fruta picada encima.", "mins": 3, "diff": "Fácil", "id": 62}, {"name": "Tostadas con jocoque", "cat": "Desayuno", "kcal": 130.0, "ings": [{"name": "Tostada salma", "amt": 2.0, "unit": "pieza"}, {"name": "Jocoque de chipotle", "amt": 30.0, "unit": "g"}], "prep": "Unta 2 tostadas con 2 cucharadas de jocoque de chipotle cada una", "mins": 3, "diff": "Fácil", "id": 63}, {"name": "Tostadas con jocoque y aguacate", "cat": "Cena", "kcal": 160.0, "ings": [{"name": "Tostada salma", "amt": 3.0, "unit": "pieza"}, {"name": "Jocoque de chipotle", "amt": 30.0, "unit": "g"}, {"name": "Aguacate", "amt": 0.5, "unit": "pieza"}, {"name": "Salsa maggi", "amt": 5.0, "unit": "g"}], "prep": "Unta 3 tostadas con 2 cucharadas de jocoque de chipotle cada una, agrega 1/4 de aguacate y sazona con salsa maggi y valentina", "mins": 5, "diff": "Fácil", "id": 64}, {"name": "Tostadas con aguacate y huevo", "cat": "Desayuno", "kcal": 300.0, "ings": [{"name": "Tostada salma", "amt": 3.0, "unit": "pieza"}, {"name": "Aguacate", "amt": 0.75, "unit": "pieza"}, {"name": "huevo", "amt": 2.0, "unit": "pieza"}], "prep": "Unta 3 tostadas con 1/4 de aguacate cada una y agrega un huevo cocido a cada una", "mins": 10, "diff": "Fácil", "id": 65}, {"name": "Galletas maria", "cat": "Snack", "kcal": 115.0, "ings": [{"name": "Galletas marias", "amt": 5.0, "unit": "pieza"}], "prep": "Pieza", "mins": 1, "diff": "Fácil", "id": 66}, {"name": "Manzana", "cat": "Snack", "kcal": 95.0, "ings": [{"name": "Manzana", "amt": 1.0, "unit": "pieza"}], "prep": "Pieza", "mins": 1, "diff": "Fácil", "id": 67}, {"name": "Uvas", "cat": "Snack", "kcal": 50.0, "ings": [{"name": "Uvas", "amt": 15.0, "unit": "pieza"}], "prep": "Pieza", "mins": 1, "diff": "Fácil", "id": 68}, {"name": "Chicharrones", "cat": "Snack", "kcal": 85.0, "ings": [{"name": "Chicharron", "amt": 0.5, "unit": "taza"}], "prep": "Pieza", "mins": 1, "diff": "Fácil", "id": 69}, {"name": "Mix de nueces", "cat": "Snack", "kcal": 95.0, "ings": [{"name": "Mix de nueces", "amt": 15.0, "unit": "g"}], "prep": "Pieza", "mins": 1, "diff": "Fácil", "id": 70}, {"name": "Rollos de jamon", "cat": "Snack", "kcal": 75.0, "ings": [{"name": "Jamon de pavo", "amt": 3.0, "unit": "pieza"}], "prep": "Haz rollos y corta en 3 porciones cada jamon", "mins": 3, "diff": "Fácil", "id": 71}, {"name": "Omelette de verduras", "cat": "Desayuno/Cena", "kcal": 160.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jitomate", "amt": 0.25, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.2, "unit": "pieza"}, {"name": "Chile serrano", "amt": 2.0, "unit": "pieza"}], "prep": "Pica la verdura en trozos pequeños, doralos y agregale el huevo batido", "mins": 12, "diff": "Fácil", "id": 72}, {"name": "Omelette de jamon con queso", "cat": "Desayuno/Cena", "kcal": 305.0, "ings": [{"name": "Huevo", "amt": 2.0, "unit": "pieza"}, {"name": "Jamon", "amt": 2.0, "unit": "pieza"}, {"name": "Cebolla", "amt": 0.2, "unit": "pieza"}, {"name": "Queso panela", "amt": 30.0, "unit": "g"}], "prep": "", "mins": 10, "diff": "Fácil", "id": 73}];
 var FRAMED=(function(){try{return window.top!==window.self;}catch(e){return true;}})();
 
 /* ---------- Iconos ---------- */
@@ -550,6 +682,10 @@ var IC={
   up:'<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>',
   down:'<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>',
   refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+  fridge:'<rect x="5.5" y="2.5" width="13" height="19" rx="2.5"/><path d="M5.5 10h13M9 6v2M9 13v3"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  sparkle:'<path d="M11 3l1.9 5.6L18.5 10.5 12.9 12.4 11 18l-1.9-5.6L3.5 10.5l5.6-1.9z"/><path d="M19 15v5M16.5 17.5h5"/>',
+  pin:'<path d="M9 4h6l-1 5 3 3v1.5H7V12l3-3z"/><path d="M12 13.5V20"/>',
   grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'
 };
 function ic(n,cls){return '<svg class="ic'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+IC[n]+'</svg>';}
@@ -592,13 +728,22 @@ var TABS=['menu','super','lib','perfil'];
 function blankCal(){var a=[];for(var w=0;w<2;w++){a.push([]);for(var d=0;d<7;d++)a[w].push({Desayuno:null,Comida:null,Snack:null,Cena:null});}return a;}
 function clone(o){return JSON.parse(JSON.stringify(o));}
 function uid(){return 'u'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);}
-function newState(withSeed){return {foods:withSeed?SEED.map(clone):[],cal:blankCal(),favs:{},recent:[],limit:2000,persons:1,checked:{},tab:'menu',week:0,day:0,scope:'all',libCat:'Todos'};}
+function newState(withSeed){return {foods:withSeed?SEED.map(clone):[],cal:blankCal(),favs:{},recent:[],limit:2000,persons:1,checked:{},fridge:{},pins:{},dislikes:{},order:[],qtyOv:{},haveQty:{},libQuick:false,libOut:false,tab:'menu',week:0,day:0,scope:'all',libCat:'Todos'};}
 function fixState(s){
   if(!Array.isArray(s.foods)) s.foods=[];
   var ok=Array.isArray(s.cal)&&s.cal.length===2&&s.cal.every(function(w){return Array.isArray(w)&&w.length===7;});
   if(!ok) s.cal=blankCal();
   if(!s.checked||typeof s.checked!=='object') s.checked={};
   if(!s.favs||typeof s.favs!=='object') s.favs={};
+  if(!s.fridge||typeof s.fridge!=='object') s.fridge={};
+  if(!s.pins||typeof s.pins!=='object') s.pins={};
+  if(!s.dislikes||typeof s.dislikes!=='object') s.dislikes={};
+  if(!Array.isArray(s.order)) s.order=[];
+  if(!s.qtyOv||typeof s.qtyOv!=='object') s.qtyOv={};
+  if(!s.haveQty||typeof s.haveQty!=='object') s.haveQty={};
+  s.libQuick=!!s.libQuick; s.libOut=!!s.libOut;
+  var sm={}; SEED.forEach(function(f){sm[norm(f.name)+'|'+f.cat]=f;});
+  s.foods.forEach(function(f){ if(f.mins===undefined){ var m=sm[norm(f.name)+'|'+f.cat]; if(m){f.mins=m.mins; f.diff=m.diff;} } });
   if(!Array.isArray(s.recent)) s.recent=[];
   s.limit=Number(s.limit)||2000; s.persons=Math.min(8,Math.max(1,Number(s.persons)||1));
   if(TABS.indexOf(s.tab)<0) s.tab='menu';
@@ -642,6 +787,8 @@ function qty(amt,unit){
   if(amt>1&&PL[unit]) unit=PL[unit];
   return amt+(unit?' '+unit:'');
 }
+function isQuick(f){return f.mins>0&&f.mins<=15;}
+function timeTag(f){return f.mins>0?'<span class="tm">'+ic('clock')+f.mins+' min'+(f.diff?' · '+esc(f.diff):'')+'</span>':'';}
 function ingLine(f,n){return esc(f.ings.slice(0,n).map(function(i){return i.name;}).join(', '))+(f.ings.length>n?'…':'');}
 var toastT;
 function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true;},3200);}
@@ -670,18 +817,31 @@ function statusOf(total){
   if(total>=S.limit*.85) return 'warn';
   return 'ok';
 }
-function buildList(scope){
+function fkey(n){return norm(String(n||'').trim());}
+function buildAll(scope){
   var weeks=scope==='all'?[0,1]:[Number(scope)], tot={};
   weeks.forEach(function(w){S.cal[w].forEach(function(day){MEALS.forEach(function(m){
     var f=food(day[m]); if(!f) return;
     f.ings.forEach(function(i){
       var key=norm(i.name.trim())+'|'+norm(i.unit||'');
-      if(!tot[key]) tot[key]={key:key,name:i.name.trim(),unit:i.unit||'',amt:0,cat:catOf(i.name)};
+      if(!tot[key]) tot[key]={key:key,fk:fkey(i.name),name:i.name.trim(),unit:i.unit||'',amt:0,cat:catOf(i.name),have:!!S.fridge[fkey(i.name)]};
       tot[key].amt+=(i.amt||0)*S.persons;
     });
   });});});
-  return Object.keys(tot).map(function(k){return tot[k];});
+  return Object.keys(tot).map(function(k){var it=tot[k]; if(S.qtyOv[it.key]!=null){it.amt=S.qtyOv[it.key];it.edited=true;}
+    it.total=it.amt; it.fridge=it.have; it.onHand=null;
+    if(it.have&&S.haveQty[it.key]!=null){
+      var hq=S.haveQty[it.key]; it.onHand=hq;
+      if(hq<it.total-1e-9){ it.have=false; it.partial=true; it.amt=round2(it.total-hq); }
+    }
+    return it;});
 }
+function superCats(){
+  var ids=S.order.filter(function(id){return SUPER_CATS.some(function(c){return c.id===id;});});
+  SUPER_CATS.forEach(function(c){if(ids.indexOf(c.id)<0) ids.push(c.id);});
+  return ids.map(function(id){return SUPER_CATS.filter(function(c){return c.id===id;})[0];});
+}
+function buildList(scope){return buildAll(scope).filter(function(i){return !i.have;});}
 
 /* ---------- Perfil ---------- */
 var PERSON_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.9-3.6 3.8-5.4 7.5-5.4s6.6 1.8 7.5 5.4"/></svg>';
@@ -707,6 +867,7 @@ function renderPerfil(){
   $('#rmPhotoBtn').hidden=!u.photo;
   if(document.activeElement!==$('#pName')) $('#pName').value=u.name||'';
   if(document.activeElement!==$('#pEmail')) $('#pEmail').value=u.email||'';
+  var nd=Object.keys(S.dislikes).length; $('#disBtn').textContent=nd?'Ingredientes que no como · '+nd:'Ingredientes que no como';
   renderUsers();
   $('#delUserBtn').hidden=ROOT.users.length<2;
   renderTheme();
@@ -742,12 +903,24 @@ var userDelArm=false;
 function mailList(){
   var u=me();
   if(!u.email){toast('Agrega tu correo arriba para usar esta opción');return;}
-  if(!buildList(S.scope).length){toast('Planifica tu menú primero');return;}
+  if(!buildAll(S.scope).length){toast('Planifica tu menú primero');return;}
   if(FRAMED){copyText(superText()).then(function(){toast('Aquí no se abre el correo, así que copié la lista.');});return;}
   window.location.href='mailto:'+u.email+'?subject='+encodeURIComponent('Mi lista del súper')+'&body='+encodeURIComponent(superText());
 }
 
 /* ---------- Render: menú ---------- */
+function pkey(w,d,m){return w+'-'+d+'-'+m;}
+function isPinned(w,d,m){return !!S.pins[pkey(w,d,m)];}
+function runLen(w,d,m){
+  var id=S.cal[w][d][m]; if(!id) return 0; var n=1, idx=w*7+d-1;
+  while(idx>=0){ var ww=idx>=7?1:0, dd=idx%7; if(S.cal[ww][dd][m]===id){n++;idx--;} else break; }
+  return n;
+}
+function inMenuSet(){var s={};for(var w=0;w<2;w++)for(var d=0;d<7;d++)MEALS.forEach(function(m){var id=S.cal[w][d][m];if(id)s[id]=1;});return s;}
+function avoids(f){
+  var dk=Object.keys(S.dislikes); if(!dk.length) return false;
+  return f.ings.some(function(i){var ik=' '+fkey(i.name)+' '; return dk.some(function(k){return ik.indexOf(' '+k+' ')>-1;});});
+}
 function renderMenu(){
   var w=S.week,d=S.day;
   [].forEach.call($('#weekSeg').children,function(b){b.setAttribute('aria-pressed',String(Number(b.dataset.v)===w));});
@@ -771,12 +944,14 @@ function renderMenu(){
     +'<div><span class="big">'+kfmt(total)+'</span><span class="of">de '+kfmt(S.limit)+' kcal por persona</span></div>'
     +'<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+S.limit+'" aria-valuenow="'+Math.round(total)+'"><i style="width:'+pct+'%"></i></div>'
     +'<div class="status">'+msg+'</div>';
+  var rep=[]; MEALS.forEach(function(m){var n=runLen(w,d,m); if(n>=3) rep.push({m:m,n:n});});
+  if(rep.length){var r0=rep[0]; box.innerHTML+='<div class="vary"><span>Tu '+r0.m.toLowerCase()+' lleva '+r0.n+' días seguidos igual.</span><button class="link" data-act="pick" data-v="'+r0.m+'">Cambiar</button></div>';}
 
   var m='';
   MEALS.forEach(function(meal){
     var f=food(S.cal[w][d][meal]), ico='<span class="mico m-'+meal+'">'+ic(MEAL_IC[meal])+'</span>';
     if(f){
-      m+='<div class="mrow"><button class="mrow-main" data-act="recipe" data-v="'+f.id+'">'+ico+'<span class="mtxt"><span class="eyebrow">'+meal+'</span><span class="mname">'+esc(f.name)+'</span></span></button>'
+      m+='<div class="mrow"><button class="mrow-main" data-act="recipe" data-v="'+f.id+'">'+ico+'<span class="mtxt"><span class="eyebrow">'+meal+'</span><span class="mname">'+esc(f.name)+(isPinned(w,d,meal)?'<span class="pin" aria-label="Fijado">'+ic('pin')+'</span>':'')+'</span></span></button>'
         +'<span class="kcal">'+kfmt(f.kcal)+' kcal</span>'
         +'<button class="icon-sq flat" data-act="mealActions" data-v="'+meal+'" aria-label="Más opciones de '+meal.toLowerCase()+'">'+ic('dots')+'</button></div>';
     } else {
@@ -797,6 +972,7 @@ function openActions(title,items){
 function dayActions(){
   openActions('Día '+(S.day+1)+' · Semana '+(S.week+1),[
     {act:'copyDay',icon:'copy',label:'Copiar este día a otros días'},
+    {act:'shareMenu',icon:'up',label:'Compartir mi menú (WhatsApp u otra app)'},
     {act:'copyWeek',icon:'copy',label:'Copiar la semana '+(S.week+1)+' a la semana '+(2-S.week)},
     {act:'clearDay',icon:'trash',label:'Vaciar este día',danger:1},
     {act:'clearWeek',icon:'trash',label:'Vaciar la semana '+(S.week+1),danger:1}
@@ -805,12 +981,14 @@ function dayActions(){
 function mealActions(meal){
   var f=food(S.cal[S.week][S.day][meal]), items=[];
   if(f) items.push({act:'recipe',v:f.id,icon:'book',label:'Ver receta'});
+  if(f) items.push({act:'pin',v:meal,icon:'pin',label:isPinned(S.week,S.day,meal)?'Quitar fijado':'Fijar (Sorpréndeme no lo cambia)'});
   items.push({act:'pick',v:meal,icon:'swap',label:f?'Cambiar '+meal.toLowerCase():'Elegir '+meal.toLowerCase()});
   if(f) items.push({act:'clear',v:meal,icon:'trash',label:'Quitar',danger:1});
   openActions(meal+' · Día '+(S.day+1),items);
 }
 function libMore(){
   openActions('Base de datos',[
+    {act:'stock',icon:'fridge',label:'¿Qué cocino con mi refri?'},
     {act:'importPick',icon:'up',label:'Importar Excel'},
     {act:'exportDB',icon:'down',label:'Exportar Excel'},
     {act:'restoreSeed',icon:'refresh',label:'Restaurar platillos iniciales'}
@@ -846,34 +1024,45 @@ function doCopy(){
 var doneOpen=false;
 function itemRow(i){
   var on=!!S.checked[i.key];
-  return '<label class="item'+(on?' done':'')+'"><input type="checkbox" data-key="'+esc(i.key)+'"'+(on?' checked':'')+'><span class="box" aria-hidden="true"></span><span class="item-name">'+esc(i.name)+'</span><span class="item-qty">'+esc(qty(i.amt,i.unit))+'</span></label>';
+  return '<label class="item'+(on?' done':'')+'"><input type="checkbox" data-key="'+esc(i.key)+'"'+(on?' checked':'')+'><span class="box" aria-hidden="true"></span><span class="item-name">'+esc(i.name)+(i.partial?'<small>Necesitas '+esc(qty(i.total,i.unit))+' · tienes '+esc(qty(i.onHand,i.unit))+'</small>':'')+'</span><button type="button" class="item-qty" data-act="editQty" data-v="'+esc(i.key)+'" aria-label="Editar cantidad de '+esc(i.name)+'">'+(i.partial?'faltan ':'')+esc(qty(i.amt,i.unit))+(i.edited?' ✎':'')+'</button></label>';
 }
 function renderSuper(){
   [].forEach.call($('#scopeSeg').children,function(b){b.setAttribute('aria-pressed',String(b.dataset.v===String(S.scope)));});
-  var list=buildList(S.scope), el=$('#superList'), bar=$('#superBar');
-  if(!list.length){
+  var all=buildAll(S.scope), list=all.filter(function(i){return !i.have;}), haveL=all.filter(function(i){return i.have;}), el=$('#superList'), bar=$('#superBar');
+  if(!all.length){
     bar.innerHTML='';
     el.innerHTML='<div class="empty">Todavía no hay comidas en el menú.<br>Elige tus comidas en la pestaña Menú y aquí aparece la lista de compras.</div>';
     return;
   }
   var pend=list.filter(function(i){return !S.checked[i.key];}), done=list.filter(function(i){return S.checked[i.key];});
-  bar.innerHTML='<div class="progress"><b>'+done.length+'</b> de '+list.length+' en el carrito</div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+list.length+'" aria-valuenow="'+done.length+'"><i style="width:'+(done.length/list.length*100)+'%"></i></div>';
-  var h='';
-  SUPER_CATS.forEach(function(c){
+  bar.innerHTML=!list.length?'':'<div class="progress"><b>'+done.length+'</b> de '+list.length+' en el carrito</div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+list.length+'" aria-valuenow="'+done.length+'"><i style="width:'+(done.length/list.length*100)+'%"></i></div>';
+  var fr=Object.keys(S.fridge).length, sc=(S.scope==='all'?'las 2 semanas':'la semana '+(Number(S.scope)+1)), tip;
+  if(!fr) tip='¿Ya tienes ingredientes en casa? Márcalos en tu refri y no saldrán como pendientes.';
+  else if(!haveL.length) tip='Marcaste '+fr+(fr===1?' ingrediente':' ingredientes')+' en tu refri, pero ninguno está en el menú de '+sc+'. Revisa los nombres o cambia el alcance de arriba.';
+  else tip=haveL.length+(haveL.length===1?' cubierto':' cubiertos')+' por tu refri'+(list.filter(function(i){return i.partial;}).length?' y '+list.filter(function(i){return i.partial;}).length+' a medias':'')+'. Toca una cantidad para indicar cuánto tienes y calculo lo que falta.';
+  var h='<div class="tip"><span>'+tip+'</span><button class="link" data-act="stock">Mi refri</button></div>';
+  superCats().forEach(function(c){
     var items=pend.filter(function(i){return i.cat===c.id;}).sort(function(a,b){return a.name.localeCompare(b.name,'es');});
     if(!items.length) return;
     h+='<div class="group-h"><h3>'+c.label+'</h3><span>'+items.length+' por comprar</span></div><div class="items">'+items.map(itemRow).join('')+'</div>';
   });
-  if(!pend.length) h+='<div class="empty">Ya tienes todo en el carrito.</div>';
+  if(!list.length) h+='<div class="empty">Ya tienes todo en tu refri.</div>';
+  else if(!pend.length) h+='<div class="empty">Ya tienes todo en el carrito.</div>';
   if(done.length){
     done.sort(function(a,b){return a.name.localeCompare(b.name,'es');});
     h+='<details class="done-group"'+(doneOpen?' open':'')+'><summary>En el carrito · '+done.length+CHEV+'</summary><div class="items">'+done.map(itemRow).join('')+'</div></details>';
   }
+  if(haveL.length){
+    haveL.sort(function(a,b){return a.name.localeCompare(b.name,'es');});
+    h+='<details class="done-group"'+(haveOpen?' open':'')+' id="haveGroup"><summary>Ya en tu refri · '+haveL.length+CHEV+'</summary><div class="items">'+haveL.map(function(i){
+      return '<div class="item have"><span class="item-name">'+esc(i.name)+'<small>'+(i.onHand!=null?'Tienes '+esc(qty(i.onHand,i.unit))+' · te alcanza':'En tu refri · toca para decir cuánto')+'</small></span><button type="button" class="item-qty" data-act="editQty" data-v="'+esc(i.key)+'" aria-label="Editar cantidad de '+esc(i.name)+'">'+esc(qty(i.total,i.unit))+(i.edited?' ✎':'')+'</button><button class="link" data-act="fridgeOff" data-v="'+esc(i.fk)+'">No lo tengo</button></div>';}).join('')+'</div></details>';
+  }
   el.innerHTML=h;
 }
+var haveOpen=false;
 function superText(){
   var list=buildList(S.scope), t='LISTA DEL SUPERMERCADO\n';
-  SUPER_CATS.forEach(function(c){
+  superCats().forEach(function(c){
     var items=list.filter(function(i){return i.cat===c.id;}).sort(function(a,b){return a.name.localeCompare(b.name,'es');});
     if(!items.length) return;
     t+='\n'+c.label.toUpperCase()+'\n';
@@ -889,7 +1078,9 @@ function renderLib(){
   var cats=['Todos'].concat(CATS);
   $('#libChips').innerHTML=cats.map(function(c){return '<button class="chip" data-act="libcat" data-v="'+c+'" aria-pressed="'+(S.libCat===c)+'">'+(c==='Todos'?'Todos':CAT_LABEL[c])+'</button>';}).join('');
   var q=norm($('#libSearch').value);
-  var list=S.foods.filter(function(f){return (S.libCat==='Todos'||f.cat===S.libCat)&&norm(f.name).indexOf(q)>-1;});
+  $('#libChips2').innerHTML=chipH('libquick','','Rápidos (15 min)',S.libQuick)+chipH('libout','','Fuera de mi menú',S.libOut);
+  var inM=inMenuSet();
+  var list=S.foods.filter(function(f){return (S.libCat==='Todos'||f.cat===S.libCat)&&norm(f.name).indexOf(q)>-1&&(!S.libQuick||isQuick(f))&&(!S.libOut||!inM[f.id]);});
   $('#libCount').textContent=list.length+(list.length===1?' platillo':' platillos');
   if(!list.length){$('#libList').innerHTML='<div class="empty">No hay platillos aquí.<br>Agrega uno nuevo con el botón + o importa tu Excel.</div>';return;}
   var h='';
@@ -899,7 +1090,7 @@ function renderLib(){
     var open=q||!collapsed[c];
     h+='<details class="lib-group" data-cat="'+c+'"'+(open?' open':'')+'><summary><span class="dotc" style="--c:'+CAT_COLOR[c]+'"></span><span class="gt">'+CAT_LABEL[c]+'</span><span class="gc">'+items.length+'</span>'+CHEV+'</summary><div class="glist">';
     items.forEach(function(f){
-      h+='<button class="food" data-act="recipeLib" data-v="'+f.id+'"><div class="food-top"><h3>'+(S.favs[f.id]?ic('star','on fav')+' ':'')+esc(f.name)+'</h3><span class="kcal">'+kfmt(f.kcal)+' kcal</span></div><p>'+ingLine(f,4)+'</p></button>';
+      h+='<button class="food" data-act="recipeLib" data-v="'+f.id+'"><div class="food-top"><h3>'+(S.favs[f.id]?ic('star','on fav')+' ':'')+esc(f.name)+'</h3><span class="kcal">'+kfmt(f.kcal)+' kcal</span></div><p>'+(f.mins>0?timeTag(f)+' · ':'')+ingLine(f,4)+'</p></button>';
     });
     h+='</div></details>';
   });
@@ -911,27 +1102,29 @@ function openSheet(id){$('#'+id).hidden=false;document.body.style.overflow='hidd
 function closeSheets(){[].forEach.call(document.querySelectorAll('.overlay'),function(o){o.hidden=true;});document.body.style.overflow='';}
 
 /* ---------- Selector inteligente ---------- */
-var pick={w:0,d:0,meal:'Desayuno',all:false,fit:false,sort:'name'};
+var pick={w:0,d:0,meal:'Desayuno',all:false,fit:false,sort:'name',fridge:false,quick:false};
 function pickBase(){var cur=food(S.cal[pick.w][pick.d][pick.meal]);return dayTotal(pick.w,pick.d)-(cur?cur.kcal:0);}
 function openPicker(meal){
-  pick={w:S.week,d:S.day,meal:meal,all:false,fit:false,sort:'name'};
+  pick={w:S.week,d:S.day,meal:meal,all:false,fit:false,sort:'name',fridge:false,quick:false};
   $('#pickTitle').textContent='Elegir '+meal.toLowerCase()+' · Día '+(S.day+1);
   $('#pickSearch').value=''; renderPick(); openSheet('sheetPick');
 }
 function chipH(act,v,label,on){return '<button class="chip" data-act="'+act+'" data-v="'+v+'" aria-pressed="'+on+'">'+label+'</button>';}
 function pickRow(f,base){
   var proj=base+f.kcal, cls=proj>=S.limit?'over':(proj>=S.limit*.85?'warn':'ok'), g=cls==='over'?'▲ ':(cls==='warn'?'! ':'');
-  return '<button class="pick-item" data-act="choose" data-v="'+f.id+'"><div><h4>'+(S.favs[f.id]?ic('star','on fav')+' ':'')+esc(f.name)+'</h4><p>'+(pick.all?esc(f.cat)+' · ':'')+ingLine(f,3)+'</p></div>'
+  return '<button class="pick-item" data-act="choose" data-v="'+f.id+'"><div><h4>'+(S.favs[f.id]?ic('star','on fav')+' ':'')+esc(f.name)+'</h4><p>'+(pick.all?esc(f.cat)+' · ':'')+(f.mins>0?timeTag(f)+' · ':'')+ingLine(f,3)+'</p></div>'
     +'<div class="pk-r"><span class="kcal">'+kfmt(f.kcal)+' kcal</span><span class="proj '+cls+'">'+g+'Día: '+kfmt(proj)+'</span></div></button>';
 }
 function renderPick(){
   var base=pickBase(), rem=S.limit-base;
   $('#pickSummary').innerHTML='Llevas <b>'+kfmt(base)+'</b> de '+kfmt(S.limit)+' kcal'+(rem>0?' · te quedan <b>'+kfmt(rem)+'</b>':' · ya estás arriba del límite');
-  $('#pickChips').innerHTML=chipH('pickall','0','Solo '+MEAL_PL[pick.meal],!pick.all)+chipH('pickall','1','Todos',pick.all)+chipH('pickfit','','Caben en mi día',pick.fit);
+  $('#pickChips').innerHTML=chipH('pickall','0','Solo '+MEAL_PL[pick.meal],!pick.all)+chipH('pickall','1','Todos',pick.all)+chipH('pickfit','','Caben en mi día',pick.fit)+chipH('pickquick','','Rápidos',pick.quick)+(Object.keys(S.fridge).length?chipH('pickfridge','','Con lo que tengo',pick.fridge):'');
   [].forEach.call($('#pickSort').children,function(b){b.setAttribute('aria-pressed',String(b.dataset.v===pick.sort));});
   var q=norm($('#pickSearch').value), allowed=SLOT_CATS[pick.meal];
-  var list=S.foods.filter(function(f){return (pick.all||allowed.indexOf(f.cat)>-1)&&norm(f.name).indexOf(q)>-1&&(!pick.fit||f.kcal<=rem);});
-  if(!list.length){$('#pickList').innerHTML='<div class="empty">'+(pick.fit?'Ningún platillo cabe en lo que te queda del día.<br>Quita "Caben en mi día" para verlos todos.':'No hay platillos de esta categoría.<br>Prueba con "Todos".')+'</div>';return;}
+  var pre=S.foods.filter(function(f){return (pick.all||allowed.indexOf(f.cat)>-1)&&norm(f.name).indexOf(q)>-1&&(!pick.fit||f.kcal<=rem)&&(!pick.fridge||canCook(f))&&(!pick.quick||isQuick(f));});
+  var list=pre.filter(function(f){return !avoids(f);}), hid=pre.length-list.length;
+  if(hid) $('#pickSummary').innerHTML+=' · <span style="color:var(--muted)">'+hid+(hid===1?' oculto':' ocultos')+' por "No me gusta"</span>';
+  if(!list.length){$('#pickList').innerHTML='<div class="empty">'+(pick.quick?'Ningún platillo de esta categoría tiene 15 minutos o menos.<br>Quita "Rápidos" para verlos todos.':pick.fridge?'Con lo que tienes en el refri no alcanza para un platillo completo de esta categoría.<br>Quita "Con lo que tengo" para verlos todos.':pick.fit?'Ningún platillo cabe en lo que te queda del día.<br>Quita "Caben en mi día" para verlos todos.':'No hay platillos de esta categoría.<br>Prueba con "Todos".')+'</div>';return;}
   if(pick.sort==='kcal') list.sort(function(a,b){return a.kcal-b.kcal||a.name.localeCompare(b.name,'es');});
   else list.sort(function(a,b){return a.name.localeCompare(b.name,'es');});
   var h='';
@@ -954,7 +1147,7 @@ function renderRecipe(){
   var f=food(recCtx.id); if(!f) return;
   $('#recTitle').textContent=f.name;
   var fav=!!S.favs[f.id];
-  var h='<div><span class="kcal">'+kfmt(f.kcal)+' kcal por porción</span> <span class="badge" style="margin-left:6px">'+esc(f.cat)+'</span></div>'
+  var h='<div><span class="kcal">'+kfmt(f.kcal)+' kcal por porción</span> <span class="badge" style="margin-left:6px">'+esc(f.cat)+'</span> '+timeTag(f)+'</div>'
     +'<div><div class="eyebrow">Ingredientes para '+S.persons+(S.persons===1?' persona':' personas')+'</div><ul class="ing-list">'
     +(f.ings.length?f.ings.map(function(i){return '<li><span>'+esc(i.name)+'</span><span>'+esc(qty((i.amt||0)*S.persons,i.unit))+'</span></li>';}).join(''):'<li><span>Sin ingredientes registrados</span><span></span></li>')
     +'</ul></div><div><div class="eyebrow" style="margin-bottom:6px">Preparación</div><div class="prep">'+esc(f.prep||'Sin descripción.')+'</div></div>'
@@ -987,7 +1180,7 @@ function openForm(id){
   var f=editId?food(editId):null;
   $('#formTitle').textContent=f?'Editar platillo':'Nuevo platillo';
   $('#saveFoodBtn').textContent=f?'Guardar cambios':'Guardar platillo';
-  $('#fNombre').value=f?f.name:''; $('#fKcal').value=f?f.kcal:''; $('#fPrep').value=f?(f.prep||''):''; $('#formMsg').textContent='';
+  $('#fNombre').value=f?f.name:''; $('#fKcal').value=f?f.kcal:''; $('#fPrep').value=f?(f.prep||''):''; $('#fMins').value=f&&f.mins?f.mins:''; $('#fDiff').value=f&&f.diff?f.diff:''; $('#formMsg').textContent='';
   $('#fCat').innerHTML=CATS.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
   if(f) $('#fCat').value=f.cat;
   $('#ingRows').innerHTML=''; ingN=0;
@@ -1003,7 +1196,7 @@ function saveFood(){
     var n=r.querySelector('.ing-name').value.trim(); if(!n) return;
     ings.push({name:n,amt:parseFloat(r.querySelector('.ing-amt').value)||0,unit:r.querySelector('.ing-unit').value});
   });
-  var data={name:name,cat:$('#fCat').value,kcal:parseFloat($('#fKcal').value)||0,ings:ings,prep:$('#fPrep').value.trim()};
+  var data={name:name,cat:$('#fCat').value,kcal:parseFloat($('#fKcal').value)||0,ings:ings,prep:$('#fPrep').value.trim(),mins:parseInt($('#fMins').value,10)||0,diff:$('#fDiff').value};
   var f=editId?food(editId):null;
   if(f){ for(var k in data) f[k]=data[k]; toast('Cambios guardados'); }
   else { data.id=nextId(); S.foods.push(data); toast('Platillo guardado'); }
@@ -1025,6 +1218,7 @@ function renderFridge(){
     for(var d2=0;d2<7;d2++){var t=dayTotal(w,d2);h+='<td><b>'+(t?kfmt(t)+' kcal':'—')+'</b></td>';}
     h+='</tr></tbody></table></div></div>';
   }
+  h+='<button class="btn block no-print" data-act="shareMenu">Compartir menú por mensaje</button>';
   if(!FRAMED) h+='<button class="btn primary block no-print" data-act="printFridge">Guardar como PDF</button>';
   $('#frBody').innerHTML=h;
 }
@@ -1034,12 +1228,12 @@ function slug(s){return norm(s||'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/
 function buildDBWorkbook(){
   var header=['ID','Nombre','Categoría','Calorías (kcal)'];
   for(var i=1;i<=8;i++) header.push('Ingrediente'+i,'Cantidad'+i,'Unidad'+i);
-  header.push('Preparación');
+  header.push('Preparación','Minutos','Dificultad');
   var rows=[header];
   S.foods.forEach(function(f,i){
     var row=[i+1,f.name,f.cat,f.kcal];
     for(var j=0;j<8;j++){var g=f.ings[j];row.push(g?g.name:'',g?g.amt:'',g?g.unit:'');}
-    row.push(f.prep||''); rows.push(row);
+    row.push(f.prep||'',f.mins||'',f.diff||''); rows.push(row);
   });
   var ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'BaseDatos');
@@ -1069,12 +1263,13 @@ function shareDB(){
 }
 function exportSuper(){
   var list=buildList(S.scope);
-  if(!list.length){toast('Planifica tu menú primero');return;}
+  if(!buildAll(S.scope).length){toast('Planifica tu menú primero');return;}
+  if(!list.length){toast('Ya tienes todo en tu refri');return;}
   if(FRAMED){copyText(superText()).then(function(){toast('Aquí no se descargan archivos, así que copié la lista.');});return;}
   if(typeof XLSX==='undefined'){toast('No se pudo cargar el módulo de Excel. Revisa tu conexión.');return;}
   try{
     var rows=[['Categoría','Ingrediente','Cantidad','Unidad']];
-    SUPER_CATS.forEach(function(c){list.filter(function(i){return i.cat===c.id;}).sort(function(a,b){return a.name.localeCompare(b.name,'es');}).forEach(function(i){rows.push([c.label,i.name,round2(i.amt),i.unit]);});});
+    superCats().forEach(function(c){list.filter(function(i){return i.cat===c.id;}).sort(function(a,b){return a.name.localeCompare(b.name,'es');}).forEach(function(i){rows.push([c.label,i.name,round2(i.amt),i.unit]);});});
     var ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:24},{wch:30},{wch:12},{wch:12}];
     var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Lista del Super');
     XLSX.writeFile(wb,'lista_supermercado.xlsx');
@@ -1095,7 +1290,7 @@ function importExcel(file){
         var cat=String(r[2]||'Comida'); if(CATS.indexOf(cat)<0) cat='Comida';
         var key=norm(String(r[1]))+'|'+cat; if(seen[key]) continue; seen[key]=1;
         var ings=[]; for(var j=4;j<=25;j+=3) if(r[j]) ings.push({name:String(r[j]),amt:parseFloat(r[j+1])||0,unit:String(r[j+2]||'')});
-        S.foods.push({id:nextId(),name:String(r[1]),cat:cat,kcal:parseFloat(r[3])||0,ings:ings,prep:String(r[28]||'')}); added++;
+        S.foods.push({id:nextId(),name:String(r[1]),cat:cat,kcal:parseFloat(r[3])||0,ings:ings,prep:String(r[28]||''),mins:parseInt(r[29],10)||0,diff:String(r[30]||'')}); added++;
       }
       save(); refreshAll(); toast(added?added+' platillos importados':'No había platillos nuevos en el archivo');
     }catch(err){toast('Error al importar: '+err.message);}
@@ -1112,12 +1307,235 @@ function setTab(t){
   window.scrollTo(0,0);
 }
 
+
+/* ---------- Mi refri: qué tengo y qué puedo cocinar ---------- */
+var stock={mode:'have',meal:'Todos',max:2};
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function isStaple(n){var k=fkey(n);return catOf(n)==='esp'||/^aceite/.test(k)||k==='agua';}
+function stockInfo(f){
+  var miss=[],have=0,seen={};
+  f.ings.forEach(function(i){
+    if(!i.name||!i.name.trim()||isStaple(i.name)) return;
+    var k=fkey(i.name); if(seen[k]) return; seen[k]=1;
+    if(S.fridge[k]) have++; else miss.push(cap(i.name.trim()));
+  });
+  return {miss:miss,have:have,total:have+miss.length};
+}
+function canCook(f){var x=stockInfo(f);return x.total>0&&x.miss.length===0;}
+function stockUniverse(all){
+  var m={};
+  S.foods.forEach(function(f){f.ings.forEach(function(i){
+    if(!i.name||!i.name.trim()||(!all&&isStaple(i.name))) return;
+    var k=fkey(i.name); if(!m[k]) m[k]=cap(i.name.trim());
+  });});
+  return m;
+}
+function stockCookList(){
+  var fr=Object.keys(S.fridge).length;
+  if(!fr) return [];
+  return S.foods.map(function(f){return {f:f,x:stockInfo(f)};}).filter(function(o){
+    return !avoids(o.f)&&o.x.total>0&&o.x.have>0&&(stock.meal==='Todos'||SLOT_CATS[stock.meal].indexOf(o.f.cat)>-1);
+  });
+}
+function renderStockBtn(){
+  var b=$('#stockBtn'); if(b) b.innerHTML=ic('fridge')+'<span>¿Qué cocino con mi refri?</span>';
+}
+function openStock(){
+  stock={mode:Object.keys(S.fridge).length?'cook':'have',meal:'Todos',max:2};
+  $('#stockSearch').value=''; renderStock(); openSheet('sheetStock');
+  $('#sheetStock .sheet-body').scrollTop=0;
+}
+function renderStock(){
+  var fr=Object.keys(S.fridge).length, list=stockCookList();
+  var ready=list.filter(function(o){return o.x.miss.length===0;}).length;
+  $('#stockSeg').innerHTML='<button data-act="stockTab" data-v="have" aria-pressed="'+(stock.mode==='have')+'">Mi refri'+(fr?' · '+fr:'')+'</button><button data-act="stockTab" data-v="cook" aria-pressed="'+(stock.mode==='cook')+'">Qué cocino'+(fr?' · '+ready:'')+'</button>';
+  $('#stockHave').hidden=(stock.mode!=='have'); $('#stockCook').hidden=(stock.mode!=='cook'); $('#stockFilters').hidden=(stock.mode!=='cook');
+  if(stock.mode==='have'){
+    var U=stockUniverse(), q=norm($('#stockSearch').value), h='', total=0;
+    SUPER_CATS.forEach(function(c){
+      var keys=Object.keys(U).filter(function(k){return catOf(U[k])===c.id&&(!q||k.indexOf(q)>-1);}).sort(function(a,b){return U[a].localeCompare(U[b],'es');});
+      if(!keys.length) return;
+      var on=keys.filter(function(k){return S.fridge[k];}).length;
+      h+='<div class="stock-h"><h3>'+c.label+'</h3><span>'+on+' de '+keys.length+'</span></div><div class="chips">'+keys.map(function(k){return chipH('stockTog',esc(k),(S.fridge[k]?'✓ ':'')+esc(U[k]),!!S.fridge[k]);}).join('')+'</div>';
+    });
+    $('#stockChips').innerHTML=h||'<div class="empty">No encontré ese ingrediente.</div>';
+    $('#stockCount').innerHTML=fr?'Tienes <b>'+fr+'</b> '+(fr===1?'ingrediente marcado':'ingredientes marcados'):'Todavía no marcas nada';
+    return;
+  }
+  $('#stockFilters').innerHTML=chipH('stockmeal','Todos','Todos',stock.meal==='Todos')+MEALS.map(function(m){return chipH('stockmeal',m,m,stock.meal===m);}).join('');
+  var el=$('#stockList');
+  if(!fr){el.innerHTML='<div class="empty">Marca lo que tienes en el refri y aquí te muestro qué puedes cocinar.<br><br><button class="btn primary" data-act="stockTab" data-v="have">Marcar lo que tengo</button></div>';return;}
+  var shown=list.filter(function(o){return o.x.miss.length<=stock.max;});
+  shown.sort(function(a,b){return a.x.miss.length-b.x.miss.length||a.f.name.localeCompare(b.f.name,'es');});
+  var more=list.length-shown.length, h2='', last=-1;
+  shown.forEach(function(o){
+    var n=o.x.miss.length;
+    if(n!==last){
+      last=n; var cnt=shown.filter(function(p){return p.x.miss.length===n;}).length;
+      h2+='<div class="stock-h"><h3>'+(n===0?'Listos para cocinar':n===1?'Te falta 1 ingrediente':'Te faltan '+n+' ingredientes')+'</h3><span>'+cnt+'</span></div>';
+    }
+    h2+='<div class="sug"><button class="sug-main" data-act="recipe" data-v="'+o.f.id+'"><div class="sug-t"><h4>'+esc(o.f.name)+'</h4><span class="kcal">'+kfmt(o.f.kcal)+' kcal</span></div>'
+      +'<p class="sug-m '+(n?'warn':'ok')+'">'+(n?'+ Te falta: '+esc(o.x.miss.join(', ')):'✓ Tienes todo')+'</p>'+(o.f.mins>0?'<p class="sug-i">'+timeTag(o.f)+'</p>':'')+'</button>'
+      +'<div class="sug-a"><button class="btn sm'+(n?'':' primary')+'" data-act="putOpen" data-v="'+o.f.id+'">Poner en mi menú</button></div></div>';
+  });
+  if(!shown.length) h2='<div class="empty">Con lo que marcaste todavía no alcanza para armar un platillo.<br>Marca más ingredientes o mira los que faltan más.</div>';
+  if(stock.max>2) h2+='<div style="margin-top:14px"><button class="btn block" data-act="stockmax">Ver solo los que faltan poco</button></div>';
+  else if(more>0) h2+='<div style="margin-top:14px"><button class="btn block" data-act="stockmax">Ver '+more+' más a los que les faltan más ingredientes</button></div>';
+  el.innerHTML=h2;
+}
+/* poner un platillo en el menú */
+var put={id:0,w:0,d:0,meal:'Comida'};
+function putSlots(f){return MEALS.filter(function(m){return SLOT_CATS[m].indexOf(f.cat)>-1;});}
+function openPut(id){
+  var f=food(id); if(!f) return;
+  var sl=putSlots(f), w=S.week, d=S.day;
+  put={id:id,w:w,d:d,meal:sl.filter(function(m){return !S.cal[w][d][m];})[0]||sl[0]||'Comida'};
+  renderPut(); $('#sheetPut').hidden=false; document.body.style.overflow='hidden';
+}
+function renderPut(){
+  var f=food(put.id); if(!f) return;
+  $('#putTitle').textContent=f.name;
+  var cur=food(S.cal[put.w][put.d][put.meal]), sl=putSlots(f), days='';
+  for(var d=0;d<7;d++) days+='<button class="chip" data-act="putd" data-v="'+d+'" aria-pressed="'+(put.d===d)+'">'+(d+1)+'</button>';
+  $('#putBody').innerHTML='<div><div class="eyebrow" style="margin-bottom:8px">Semana</div><div class="chips">'+chipH('putw','0','Semana 1',put.w===0)+chipH('putw','1','Semana 2',put.w===1)+'</div></div>'
+    +'<div><div class="eyebrow" style="margin-bottom:8px">Día</div><div class="cg">'+days+'</div></div>'
+    +'<div><div class="eyebrow" style="margin-bottom:8px">Comida</div><div class="chips">'+sl.map(function(m){return chipH('putm',m,m,put.meal===m);}).join('')+'</div></div>'
+    +'<p class="note">'+(cur?'Reemplaza: <b>'+esc(cur.name)+'</b>':'Ese espacio está libre.')+'</p>'
+    +'<button class="btn primary block" data-act="doPut">Agregar al menú</button>';
+}
+function doPut(){
+  var f=food(put.id); if(!f) return;
+  snapshot(); S.cal[put.w][put.d][put.meal]=f.id;
+  S.recent=[f.id].concat(S.recent.filter(function(x){return x!==f.id;})).slice(0,8);
+  S.week=put.w; S.day=put.d; save();
+  $('#sheetPut').hidden=true; renderStock();
+  toastUndo('Agregado a Semana '+(put.w+1)+', Día '+(put.d+1)+', '+put.meal.toLowerCase());
+}
+/* cerrar solo la hoja de arriba si hay otra debajo */
+function dismiss(ov){
+  var stockOpen=!$('#sheetStock').hidden;
+  if(stockOpen&&(ov.id==='sheetRecipe'||ov.id==='sheetPut')){ov.hidden=true;return;}
+  closeSheets(); refreshAll();
+}
+
+
+/* ---------- Sorpréndeme ---------- */
+var surp={scope:'week',redo:false,fridge:false,quick:false};
+function renderSurpBtn(){var b=$('#surpBtn'); if(b) b.innerHTML=ic('sparkle')+'<span>Sorpréndeme</span>';}
+function openSurp(){
+  surp.fridge=surp.fridge&&Object.keys(S.fridge).length>0; renderSurp(); openSheet('sheetSurp');
+}
+function renderSurp(){
+  var hasFr=Object.keys(S.fridge).length>0;
+  $('#surpBody').innerHTML='<p class="note">Llena tu menú con platillos al azar. Respeta tu límite de calorías, evita repetir el mismo platillo en pocos días y no usa lo que marcaste en "No me gusta".</p>'
+   +'<div><div class="opt-h">Qué llenar</div><div class="chips">'+chipH('surpScope','day','Este día',surp.scope==='day')+chipH('surpScope','week','Esta semana',surp.scope==='week')+chipH('surpScope','all','Las 2 semanas',surp.scope==='all')+'</div></div>'
+   +'<div><div class="opt-h">Cómo</div><div class="chips">'+chipH('surpMode','0','Solo espacios vacíos',!surp.redo)+chipH('surpMode','1','Rehacer todo (menos fijados)',surp.redo)+'</div></div>'
+   +'<div><div class="opt-h">Filtros</div><div class="chips">'+chipH('surpQuick','','Solo rápidos (15 min o menos)',surp.quick)+(hasFr?chipH('surpFridge','','Solo con lo que tengo',surp.fridge):'')+'</div></div>'
+   +'<button class="btn primary block" data-act="surpGo">'+ic('sparkle')+'<span>Sorpréndeme</span></button>';
+}
+function lastUse(id,idx){
+  var best=99;
+  for(var i=0;i<14;i++){ if(i===idx) continue; var w=i>=7?1:0, d=i%7;
+    if(MEALS.some(function(m){return S.cal[w][d][m]===id;})) best=Math.min(best,Math.abs(i-idx)); }
+  return best;
+}
+function surpriseRun(){
+  var o=surp, targets=[], d, w;
+  if(o.scope==='day') targets.push([S.week,S.day]);
+  else if(o.scope==='week'){ for(d=0;d<7;d++) targets.push([S.week,d]); }
+  else { for(w=0;w<2;w++)for(d=0;d<7;d++) targets.push([w,d]); }
+  var freeBefore=0;
+  if(!o.redo){ targets.forEach(function(t){MEALS.forEach(function(m){if(!S.cal[t[0]][t[1]][m])freeBefore++;});}); if(!freeBefore){toast('No hay espacios vacíos. Prueba "Rehacer todo".');return;} }
+  snapshot();
+  if(o.redo) targets.forEach(function(t){MEALS.forEach(function(m){ if(!isPinned(t[0],t[1],m)) S.cal[t[0]][t[1]][m]=null; });});
+  var share={Desayuno:.25,Comida:.35,Snack:.10,Cena:.30}, use={}, filled=0, miss=0;
+  for(w=0;w<2;w++)for(d=0;d<7;d++)MEALS.forEach(function(m){var id=S.cal[w][d][m]; if(id) use[id]=(use[id]||0)+1;});
+  targets.forEach(function(t){ MEALS.forEach(function(m){
+    if(S.cal[t[0]][t[1]][m]) return;
+    var day=S.cal[t[0]][t[1]];
+    var cands=S.foods.filter(function(f){
+      return SLOT_CATS[m].indexOf(f.cat)>-1 && f.ings.length && !avoids(f) && (!o.quick||isQuick(f)) && (!o.fridge||canCook(f)) && !MEALS.some(function(mm){return day[mm]===f.id;});
+    });
+    if(!cands.length){miss++;return;}
+    var idx=t[0]*7+t[1], best=null, bs=-1e9, tgt=S.limit*share[m], tot=dayTotal(t[0],t[1]);
+    cands.forEach(function(f){
+      var ld=lastUse(f.id,idx), sc=Math.random();
+      if(ld<=1) sc-=3; else if(ld<=3) sc-=1.5; else if(ld<=5) sc-=.5;
+      sc-=.35*(use[f.id]||0);
+      sc-=Math.min(1.5,Math.abs(f.kcal-tgt)/tgt);
+      if(S.favs[f.id]) sc+=.4;
+      if(tot+f.kcal>S.limit) sc-=2;
+      if(sc>bs){bs=sc;best=f;}
+    });
+    day[m]=best.id; use[best.id]=(use[best.id]||0)+1; filled++;
+  });});
+  save(); closeSheets(); renderMenu();
+  if(!filled){ undoSnap=null; toast('No encontré platillos con esos filtros. Prueba quitar alguno.'); return; }
+  toastUndo('Listo: llené '+filled+(filled===1?' espacio':' espacios')+(miss?' · '+miss+' sin opciones':''));
+}
+
+/* ---------- No me gusta ---------- */
+function renderDis(){
+  var U=stockUniverse(true), q=norm($('#disSearch').value), h='', n=Object.keys(S.dislikes).length;
+  superCats().forEach(function(c){
+    var keys=Object.keys(U).filter(function(k){return catOf(U[k])===c.id&&(!q||k.indexOf(q)>-1);}).sort(function(a,b){return U[a].localeCompare(U[b],'es');});
+    if(!keys.length) return;
+    h+='<div class="stock-h"><h3>'+c.label+'</h3><span>'+keys.filter(function(k){return S.dislikes[k];}).length+' de '+keys.length+'</span></div><div class="chips">'+keys.map(function(k){return chipH('disTog',esc(k),(S.dislikes[k]?'✕ ':'')+esc(U[k]),!!S.dislikes[k]);}).join('')+'</div>';
+  });
+  $('#disChips').innerHTML=h||'<div class="empty">No encontré ese ingrediente.</div>';
+  $('#disCount').innerHTML=n?'Ocultas platillos con <b>'+n+'</b> '+(n===1?'ingrediente':'ingredientes'):'Todavía no marcas nada';
+}
+function openDis(){$('#disSearch').value=''; renderDis(); openSheet('sheetDis'); $('#sheetDis .sheet-body').scrollTop=0;}
+
+/* ---------- Compartir ---------- */
+function menuText(){
+  var t='MI MENÚ · Planificador de Dieta\n', any=false;
+  for(var w=0;w<2;w++)for(var d=0;d<7;d++){
+    if(!MEALS.some(function(m){return S.cal[w][d][m];})) continue; any=true;
+    t+='\nSEMANA '+(w+1)+' · DÍA '+(d+1)+' ('+kfmt(dayTotal(w,d))+' kcal)\n';
+    MEALS.forEach(function(m){var f=food(S.cal[w][d][m]); if(f) t+='  • '+m+': '+f.name+'\n';});
+  }
+  return any?t:'';
+}
+function shareText(text,title){
+  if(!text){toast('Planifica tu menú primero');return;}
+  if(!FRAMED&&navigator.share){navigator.share({title:title,text:text}).catch(function(){});return;}
+  copyText(text).then(function(ok){toast(ok?'Copiado. Pégalo en WhatsApp o donde quieras':'No se pudo copiar');});
+}
+
+/* ---------- Súper: orden y cantidades ---------- */
+function renderOrder(){
+  var cs=superCats();
+  $('#ordBody').innerHTML=cs.map(function(c,i){
+    return '<div class="ord-row"><b>'+c.label+'</b><span class="ord-btns"><button class="icon-sq" data-act="orderUp" data-v="'+c.id+'" aria-label="Subir '+c.label+'"'+(i===0?' disabled':'')+'>↑</button><button class="icon-sq" data-act="orderDown" data-v="'+c.id+'" aria-label="Bajar '+c.label+'"'+(i===cs.length-1?' disabled':'')+'>↓</button></span></div>';
+  }).join('');
+}
+function moveCat(id,dir){
+  var ids=superCats().map(function(c){return c.id;}), i=ids.indexOf(id), j=i+dir;
+  if(i<0||j<0||j>=ids.length) return;
+  var x=ids[i]; ids[i]=ids[j]; ids[j]=x; S.order=ids; save(); renderOrder();
+}
+var qtyKey=null, qtyFk='', qtyTotal=0;
+function openQty(key){
+  var it=buildAll(S.scope).filter(function(i){return i.key===key;})[0]; if(!it) return;
+  qtyKey=key; $('#qtyTitle').textContent=it.name;
+  qtyFk=it.fk; qtyTotal=round2(it.total);
+  $('#qtyLbl').textContent='Necesito'+(it.unit?' ('+it.unit+')':'');
+  $('#haveLbl').textContent='Tengo en casa'+(it.unit?' ('+it.unit+')':'');
+  $('#qtyIn').value=qtyTotal;
+  $('#haveIn').value=S.haveQty[key]!=null?S.haveQty[key]:'';
+  $('#qtyNote').textContent=(it.edited?'Cambiaste lo que necesitas a mano. ':'Lo que necesitas sale de tu menú y del número de personas. ')+'Si pones cuánto tienes, la lista te dice solo lo que falta por comprar.';
+  $('#qtyResetBtn').hidden=!(it.edited||S.haveQty[key]!=null);
+  openSheet('sheetQty');
+}
+
 /* ---------- Eventos ---------- */
 document.addEventListener('click',function(e){
-  if(e.target.classList&&e.target.classList.contains('overlay')){closeSheets();return;}
+  if(e.target.classList&&e.target.classList.contains('overlay')){dismiss(e.target);return;}
   var el=e.target.closest('[data-act]'); if(!el) return;
   var a=el.dataset.act, v=el.dataset.v;
   if(el.dataset.close) closeSheets();
+  if(a==='close'){dismiss(el.closest('.overlay')||document.body);return;}
   switch(a){
     case 'tab': setTab(v); break;
     case 'week': S.week=Number(v); save(); renderMenu(); break;
@@ -1130,14 +1548,17 @@ document.addEventListener('click',function(e){
     case 'pick': openPicker(v); break;
     case 'pickall': pick.all=(v==='1'); renderPick(); break;
     case 'pickfit': pick.fit=!pick.fit; renderPick(); break;
+    case 'pin': if(isPinned(S.week,S.day,v)) delete S.pins[pkey(S.week,S.day,v)]; else S.pins[pkey(S.week,S.day,v)]=1; save(); renderMenu(); toast(isPinned(S.week,S.day,v)?'Fijado: Sorpréndeme no lo va a cambiar':'Ya no está fijado'); break;
+    case 'pickquick': pick.quick=!pick.quick; renderPick(); break;
+    case 'pickfridge': pick.fridge=!pick.fridge; renderPick(); break;
     case 'picksort': pick.sort=v; renderPick(); break;
     case 'choose':
       var id=Number(v); S.cal[pick.w][pick.d][pick.meal]=id;
       S.recent=[id].concat(S.recent.filter(function(x){return x!==id;})).slice(0,8);
       save(); closeSheets(); renderMenu(); break;
-    case 'clear': snapshot(); S.cal[S.week][S.day][v]=null; save(); renderMenu(); toastUndo('Quitaste '+v.toLowerCase()); break;
-    case 'clearDay': snapshot(); MEALS.forEach(function(m){S.cal[S.week][S.day][m]=null;}); save(); renderMenu(); toastUndo('Día '+(S.day+1)+' vacío'); break;
-    case 'clearWeek': snapshot(); S.cal[S.week]=blankCal()[0]; save(); renderMenu(); toastUndo('Semana '+(S.week+1)+' vacía'); break;
+    case 'clear': snapshot(); S.cal[S.week][S.day][v]=null; delete S.pins[pkey(S.week,S.day,v)]; save(); renderMenu(); toastUndo('Quitaste '+v.toLowerCase()); break;
+    case 'clearDay': snapshot(); MEALS.forEach(function(m){S.cal[S.week][S.day][m]=null; delete S.pins[pkey(S.week,S.day,m)];}); save(); renderMenu(); toastUndo('Día '+(S.day+1)+' vacío'); break;
+    case 'clearWeek': snapshot(); S.cal[S.week]=blankCal()[0]; Object.keys(S.pins).forEach(function(k){if(k.indexOf(S.week+'-')===0)delete S.pins[k];}); save(); renderMenu(); toastUndo('Semana '+(S.week+1)+' vacía'); break;
     case 'copyWeek': snapshot(); S.cal[1-S.week]=clone(S.cal[S.week]); save(); renderMenu(); toastUndo('Semana '+(S.week+1)+' copiada a la semana '+(2-S.week)); break;
     case 'copyDay': openCopy(); break;
     case 'copyToggle': if(copySel[v]) delete copySel[v]; else copySel[v]=1; renderCopy(); break;
@@ -1154,13 +1575,49 @@ document.addEventListener('click',function(e){
       save(); renderRecipe(); if(S.tab==='lib') renderLib(); break;
     case 'fridge': renderFridge(); openSheet('sheetFridge'); break;
     case 'printFridge': window.print(); break;
-    case 'close': closeSheets(); break;
+    case 'stock': closeSheets(); openStock(); break;
+    case 'surp': openSurp(); break;
+    case 'surpScope': surp.scope=v; renderSurp(); break;
+    case 'surpMode': surp.redo=(v==='1'); renderSurp(); break;
+    case 'surpQuick': surp.quick=!surp.quick; renderSurp(); break;
+    case 'surpFridge': surp.fridge=!surp.fridge; renderSurp(); break;
+    case 'surpGo': surpriseRun(); break;
+    case 'dis': openDis(); break;
+    case 'disTog': if(S.dislikes[v]) delete S.dislikes[v]; else S.dislikes[v]=1; save(); renderDis(); break;
+    case 'shareMenu': shareText(menuText(),'Mi menú'); break;
+    case 'shareSuper': if(!buildList(S.scope).length){toast('No hay nada pendiente por comprar');break;} shareText(superText(),'Lista del súper'); break;
+    case 'order': renderOrder(); openSheet('sheetOrder'); break;
+    case 'orderUp': moveCat(v,-1); break;
+    case 'orderDown': moveCat(v,1); break;
+    case 'editQty': openQty(v); break;
+    case 'qtySave':
+      var qv=parseFloat($('#qtyIn').value); if(!(qv>=0)){toast('Escribe una cantidad válida');break;}
+      if(Math.abs(qv-qtyTotal)>1e-9) S.qtyOv[qtyKey]=qv;
+      var hvRaw=$('#haveIn').value.trim();
+      if(hvRaw===''){ delete S.haveQty[qtyKey]; }
+      else { var hv=parseFloat(hvRaw); if(!(hv>=0)){toast('Escribe cuánto tienes, o déjalo vacío');break;} S.haveQty[qtyKey]=hv; if(hv>0) S.fridge[qtyFk]=1; }
+      save(); $('#sheetQty').hidden=true; document.body.style.overflow=''; renderSuper(); break;
+    case 'qtyReset': delete S.qtyOv[qtyKey]; delete S.haveQty[qtyKey]; save(); $('#sheetQty').hidden=true; document.body.style.overflow=''; renderSuper(); break;
+    case 'stockTab': stock.mode=v; renderStock(); break;
+    case 'stockTog': if(S.fridge[v]) delete S.fridge[v]; else S.fridge[v]=1; save(); renderStock(); break;
+    case 'stockmeal': stock.meal=v; renderStock(); break;
+    case 'stockmax': stock.max=stock.max>2?2:99; renderStock(); break;
+    case 'stockClear': S.fridge={}; save(); renderStock(); toast('Refri vacío'); break;
+    case 'putOpen': openPut(Number(v)); break;
+    case 'putw': put.w=Number(v); renderPut(); break;
+    case 'putd': put.d=Number(v); renderPut(); break;
+    case 'putm': put.meal=v; renderPut(); break;
+    case 'doPut': doPut(); break;
+    case 'fridgeOff': delete S.fridge[v]; save(); renderSuper(); break;
+    case 'close': break;
     case 'scope': S.scope=v; save(); renderSuper(); break;
     case 'uncheck': S.checked={}; save(); renderSuper(); break;
     case 'copySuper':
-      if(!buildList(S.scope).length){toast('Planifica tu menú primero');break;}
+      if(!buildAll(S.scope).length){toast('Planifica tu menú primero');break;}
       copyText(superText()).then(function(ok){toast(ok?'Lista copiada':'No se pudo copiar. Mantén presionada la lista para seleccionarla.');}); break;
     case 'exportSuper': exportSuper(); break;
+    case 'libquick': S.libQuick=!S.libQuick; save(); renderLib(); break;
+    case 'libout': S.libOut=!S.libOut; save(); renderLib(); break;
     case 'libcat': S.libCat=v; save(); renderLib(); break;
     case 'newFood': openForm(null); break;
     case 'addIng': addIngRow(); break;
@@ -1207,19 +1664,24 @@ document.addEventListener('change',function(e){
 });
 document.addEventListener('input',function(e){
   if(e.target.id==='pickSearch')renderPick();
+  else if(e.target.id==='stockSearch')renderStock();
+  else if(e.target.id==='disSearch')renderDis();
   else if(e.target.id==='libSearch')renderLib();
   else if(e.target.id==='pName'){me().name=e.target.value; save(); renderHeader(); renderUsers();}
   else if(e.target.id==='pEmail'){me().email=e.target.value.trim(); save();}
 });
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheets();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=[].filter.call(document.querySelectorAll('.overlay'),function(x){return !x.hidden;}).pop(); if(o) dismiss(o);}});
 document.addEventListener('toggle',function(e){
   var d=e.target; if(!d.classList) return;
   if(d.classList.contains('lib-group')) collapsed[d.dataset.cat]=!d.open;
+  else if(d.id==='haveGroup') haveOpen=d.open;
   else if(d.classList.contains('done-group')) doneOpen=d.open;
 },true);
 
 applyTheme();
 renderHeader();
+renderStockBtn();
+renderSurpBtn();
 setTab(S.tab||'menu');
 })();
 </script>
